@@ -1,4 +1,5 @@
-﻿using ShopBanHang_OfflineFirst.Data;
+using ShopBanHang_OfflineFirst.Data;
+using ShopBanHang.Shared.Security;
 using System;
 using System.Linq;
 using System.Windows;
@@ -21,10 +22,15 @@ namespace ShopBanHang_OfflineFirst
             string passMoi = txtMatKhauMoi.Password;
             string xacNhan = txtXacNhan.Password;
 
-            // 1. Kiểm tra rỗng
             if (string.IsNullOrEmpty(passCu) || string.IsNullOrEmpty(passMoi))
             {
                 MessageBox.Show("Vui lòng nhập đầy đủ mật khẩu!");
+                return;
+            }
+
+            if (passMoi != xacNhan)
+            {
+                MessageBox.Show("Mật khẩu xác nhận không khớp!");
                 return;
             }
 
@@ -33,27 +39,25 @@ namespace ShopBanHang_OfflineFirst
                 var dsTrungTk = db.NhanViens.Where(x => x.TaiKhoan == _taiKhoanDangNhap).ToList();
                 var nv = dsTrungTk.FirstOrDefault(x => x.Id == App.IdNhanVienAdminTong) ?? dsTrungTk.FirstOrDefault();
 
-                // KIỂM TRA LỖI Ở ĐÂY:
                 if (nv == null)
                 {
                     MessageBox.Show("Không tìm thấy tài khoản này trong hệ thống!");
-                    return; // <--- CỰC KỲ QUAN TRỌNG: Phải có return để dừng hàm tại đây
+                    return;
                 }
 
-                // 3. Kiểm tra mật khẩu cũ
-                if (nv.MatKhau != passCu)
+                if (!PasswordHasher.Verify(passCu, nv.MatKhau))
                 {
                     MessageBox.Show("Mật khẩu cũ không chính xác!");
-                    return; // Dừng nếu sai pass cũ
+                    return;
                 }
 
-                // 4. Nếu mọi thứ OK mới chạy xuống đây
-                nv.MatKhau = passMoi;
+                nv.MatKhau = PasswordHasher.Hash(passMoi);
                 nv.TrangThaiDongBo = 0;
+                nv.NgayCapNhat = DateTime.UtcNow;
                 db.SaveChanges();
 
                 MessageBox.Show("Đổi mật khẩu thành công!", "Thông báo");
-                this.Close();
+                Close();
             }
         }
     }

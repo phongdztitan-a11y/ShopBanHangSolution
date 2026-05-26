@@ -2,6 +2,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ShopBanHang.Shared;
 using ShopBanHang.Shared.Models;
+using ShopBanHang.Shared.Security;
+using System.Security.Cryptography;
+using System.Text;
 
 using WebApplication3.Data; // <--- Dòng này sẽ fix lỗi CS0103/CS0246 của bạn
 
@@ -18,10 +21,79 @@ namespace WebApplication3.Controllers
         private const string AdminVaiTro = "QuanLy";
         private const string AdminChiNhanh = "CN_GOC";
         private const string KhachLeId = "KHACH_LE";
+        private const int TokenDays = 7;
 
         public SyncController(ServerDbContext context)
         {
             _context = context;
+        }
+
+        private static NhanVien ToPublicNhanVien(NhanVien source) => new()
+        {
+            Id = source.Id,
+            HoTen = source.HoTen,
+            MaNhanVien = source.MaNhanVien,
+            TaiKhoan = source.TaiKhoan,
+            MatKhau = string.Empty,
+            VaiTro = source.VaiTro,
+            MaChiNhanh = source.MaChiNhanh,
+            LanDangNhapOnlineGanNhat = source.LanDangNhapOnlineGanNhat,
+            TrangThaiDongBo = source.TrangThaiDongBo,
+            NgayCapNhat = source.NgayCapNhat,
+            DaXoa = source.DaXoa
+        };
+
+        private static NhanVien ToLoginNhanVien(NhanVien source)
+        {
+            var user = ToPublicNhanVien(source);
+            user.MatKhau = source.MatKhau;
+            return user;
+        }
+
+        private string GetTokenSecret() =>
+            Environment.GetEnvironmentVariable("SHOPBANHANG_TOKEN_SECRET")
+            ?? "dev-only-change-this-secret-on-render";
+
+        private string CreateToken(NhanVien user)
+        {
+            var expiresUtc = DateTimeOffset.UtcNow.AddDays(TokenDays).ToUnixTimeSeconds();
+            var payload = $"{user.Id}|{expiresUtc}";
+            var signature = SignTokenPayload(payload);
+            return Convert.ToBase64String(Encoding.UTF8.GetBytes($"{payload}|{signature}"));
+        }
+
+        private string SignTokenPayload(string payload)
+        {
+            using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(GetTokenSecret()));
+            return Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(payload)));
+        }
+
+        private bool HasValidBearerToken()
+        {
+            var header = Request.Headers.Authorization.ToString();
+            if (string.IsNullOrWhiteSpace(header) || !header.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            try
+            {
+                var raw = Encoding.UTF8.GetString(Convert.FromBase64String(header["Bearer ".Length..].Trim()));
+                var parts = raw.Split('|');
+                if (parts.Length != 3 || !long.TryParse(parts[1], out var expiresUtc))
+                    return false;
+
+                if (DateTimeOffset.UtcNow.ToUnixTimeSeconds() > expiresUtc)
+                    return false;
+
+                var payload = $"{parts[0]}|{parts[1]}";
+                var expected = Encoding.UTF8.GetBytes(SignTokenPayload(payload));
+                var actual = Encoding.UTF8.GetBytes(parts[2]);
+                return actual.Length == expected.Length
+                    && CryptographicOperations.FixedTimeEquals(actual, expected);
+            }
+            catch (FormatException)
+            {
+                return false;
+            }
         }
 
         private async Task EnsureAdminTongAsync()
@@ -35,7 +107,7 @@ namespace WebApplication3.Controllers
                 {
                     Id = AdminId,
                     TaiKhoan = AdminTaiKhoan,
-                    MatKhau = AdminMatKhauMacDinh,
+                    MatKhau = PasswordHasher.Hash(AdminMatKhauMacDinh),
                     HoTen = "Quản Trị Viên",
                     VaiTro = AdminVaiTro,
                     MaNhanVien = "NV001",
@@ -54,7 +126,9 @@ namespace WebApplication3.Controllers
             admin.VaiTro = AdminVaiTro;
             admin.DaXoa = false;
             if (string.IsNullOrWhiteSpace(admin.MatKhau))
-                admin.MatKhau = AdminMatKhauMacDinh;
+                admin.MatKhau = PasswordHasher.Hash(AdminMatKhauMacDinh);
+            else if (!PasswordHasher.IsHashed(admin.MatKhau))
+                admin.MatKhau = PasswordHasher.Hash(admin.MatKhau);
             if (string.IsNullOrWhiteSpace(admin.HoTen))
                 admin.HoTen = "Quản Trị Viên";
             admin.NgayCapNhat = DateTime.UtcNow;
@@ -481,12 +555,15 @@ namespace WebApplication3.Controllers
         [HttpGet("GetNhanViens")]
         public async Task<IActionResult> GetNhanViens()
         {
+            if (!HasValidBearerToken())
+                return Unauthorized("Thiếu hoặc sai token đăng nhập.");
+
             await EnsureAdminTongAsync();
             var data = await _context.NhanViens
                 .AsNoTracking()
                 .OrderByDescending(n => n.NgayCapNhat)
                 .ToListAsync();
-            return Ok(data);
+            return Ok(data.Select(ToPublicNhanVien).ToList());
         }
 
         /// <summary>Đăng nhập online trực tiếp qua server (central-auth).</summary>
@@ -498,9 +575,13 @@ namespace WebApplication3.Controllers
 
             await EnsureAdminTongAsync();
             var user = await _context.NhanViens.FirstOrDefaultAsync(u =>
-                !u.DaXoa && u.TaiKhoan == req.TaiKhoan && u.MatKhau == req.MatKhau);
+                !u.DaXoa && u.TaiKhoan == req.TaiKhoan);
 
-            if (user == null) return Unauthorized("Tài khoản hoặc mật khẩu không đúng.");
+            if (user == null || !PasswordHasher.Verify(req.MatKhau, user.MatKhau))
+                return Unauthorized("Tài khoản hoặc mật khẩu không đúng.");
+
+            if (!PasswordHasher.IsHashed(user.MatKhau))
+                user.MatKhau = PasswordHasher.Hash(req.MatKhau);
 
             // Chuẩn hóa tài khoản admin tổng trên server.
             bool laAdminTong = user.Id == AdminId || string.Equals(user.TaiKhoan, AdminTaiKhoan, StringComparison.OrdinalIgnoreCase);
@@ -521,7 +602,8 @@ namespace WebApplication3.Controllers
             return Ok(new LoginNhanVienResponse
             {
                 Success = true,
-                NhanVien = user
+                NhanVien = ToLoginNhanVien(user),
+                Token = CreateToken(user)
             });
         }
 
@@ -529,6 +611,9 @@ namespace WebApplication3.Controllers
         [HttpPost("UpsertNhanViens")]
         public async Task<IActionResult> UpsertNhanViens([FromBody] UpsertNhanVienRequest? req)
         {
+            if (!HasValidBearerToken())
+                return Unauthorized("Thiếu hoặc sai token đăng nhập.");
+
             if (req?.NhanViens == null || req.NhanViens.Count == 0)
                 return BadRequest("Không có dữ liệu nhân viên.");
 
@@ -557,8 +642,9 @@ namespace WebApplication3.Controllers
                             item.VaiTro = AdminVaiTro;
                             item.DaXoa = false;
                             if (string.IsNullOrWhiteSpace(item.MatKhau))
-                                item.MatKhau = AdminMatKhauMacDinh;
+                                item.MatKhau = PasswordHasher.Hash(AdminMatKhauMacDinh);
                         }
+                        item.MatKhau = PasswordHasher.HashIfNeeded(item.MatKhau);
                         item.TrangThaiDongBo = 1;
                         if (item.NgayCapNhat == default) item.NgayCapNhat = DateTime.UtcNow;
                         _context.NhanViens.Add(item);
@@ -576,7 +662,9 @@ namespace WebApplication3.Controllers
                         current.VaiTro = AdminVaiTro;
                         current.DaXoa = false;
                         if (string.IsNullOrWhiteSpace(current.MatKhau))
-                            current.MatKhau = AdminMatKhauMacDinh;
+                            current.MatKhau = PasswordHasher.Hash(AdminMatKhauMacDinh);
+                        else if (!PasswordHasher.IsHashed(current.MatKhau))
+                            current.MatKhau = PasswordHasher.Hash(current.MatKhau);
                     }
                     else
                     {
@@ -587,7 +675,8 @@ namespace WebApplication3.Controllers
                     }
 
                     current.HoTen = item.HoTen;
-                    current.MatKhau = item.MatKhau;
+                    if (!string.IsNullOrWhiteSpace(item.MatKhau))
+                        current.MatKhau = PasswordHasher.HashIfNeeded(item.MatKhau);
                     current.MaNhanVien = item.MaNhanVien;
                     current.TrangThaiDongBo = 1;
                     current.NgayCapNhat = item.NgayCapNhat == default ? DateTime.UtcNow : item.NgayCapNhat;
@@ -609,6 +698,9 @@ namespace WebApplication3.Controllers
         [HttpPost("DeleteNhanViens")]
         public async Task<IActionResult> DeleteNhanViens([FromBody] XoaNhanVienRequest? req)
         {
+            if (!HasValidBearerToken())
+                return Unauthorized("Thiếu hoặc sai token đăng nhập.");
+
             if (req?.Ids == null || req.Ids.Count == 0)
                 return BadRequest("Không có Id nhân viên.");
 
@@ -686,5 +778,6 @@ namespace WebApplication3.Controllers
     {
         public bool Success { get; set; }
         public NhanVien? NhanVien { get; set; }
+        public string Token { get; set; } = string.Empty;
     }
 }

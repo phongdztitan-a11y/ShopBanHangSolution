@@ -29,17 +29,42 @@ namespace WebApplication3.Data
         public ServerDbContext CreateDbContext(string[] args)
         {
             var optionsBuilder = new DbContextOptionsBuilder<ServerDbContext>();
+            var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL")
+                ?? Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection");
 
-            optionsBuilder.UseNpgsql(
-    "Host=dpg-d8amd8jbc2fs7385p1bg-a.singapore-postgres.render.com;" +
-    "Port=5432;" +
-    "Database=shopbanhang_db;" +
-    "Username=shopbanhang_db_user;" +
-    "Password=qnAgnOInBwGwsrbUQ1D0ZWbmwOoElRIT;" +
-    "SSL Mode=Require;" +
-    "Trust Server Certificate=true");
+            if (string.IsNullOrWhiteSpace(connectionString))
+            {
+                throw new InvalidOperationException(
+                    "Thiếu DATABASE_URL hoặc ConnectionStrings__DefaultConnection để chạy EF migration.");
+            }
+
+            optionsBuilder.UseNpgsql(ToNpgsqlConnectionString(connectionString));
 
             return new ServerDbContext(optionsBuilder.Options);
+        }
+
+        private static string ToNpgsqlConnectionString(string raw)
+        {
+            if (!raw.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase) &&
+                !raw.StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase))
+            {
+                return raw;
+            }
+
+            var databaseUri = new Uri(raw);
+            var userParts = databaseUri.UserInfo.Split(':', 2);
+            var username = Uri.UnescapeDataString(userParts[0]);
+            var password = userParts.Length > 1 ? Uri.UnescapeDataString(userParts[1]) : string.Empty;
+            var port = databaseUri.Port > 0 ? databaseUri.Port : 5432;
+            var database = databaseUri.AbsolutePath.TrimStart('/');
+
+            return
+                $"Host={databaseUri.Host};" +
+                $"Port={port};" +
+                $"Database={database};" +
+                $"Username={username};" +
+                $"Password={password};" +
+                "SSL Mode=Require;Trust Server Certificate=true";
         }
     }
 }

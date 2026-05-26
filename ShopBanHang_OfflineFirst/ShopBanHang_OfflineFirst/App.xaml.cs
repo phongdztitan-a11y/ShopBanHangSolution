@@ -1,4 +1,5 @@
 ﻿using ShopBanHang_OfflineFirst.Data;
+using ShopBanHang.Shared.Security;
 using System;
 using System.Linq;
 using System.Windows;
@@ -82,7 +83,9 @@ namespace ShopBanHang_OfflineFirst
             if (string.IsNullOrWhiteSpace(admin.HoTen))
                 admin.HoTen = "Quản Trị Viên";
             if (string.IsNullOrWhiteSpace(admin.MatKhau))
-                admin.MatKhau = "123";
+                admin.MatKhau = PasswordHasher.Hash("123");
+            else if (!PasswordHasher.IsHashed(admin.MatKhau))
+                admin.MatKhau = PasswordHasher.Hash(admin.MatKhau);
 
             db.SaveChanges();
         }

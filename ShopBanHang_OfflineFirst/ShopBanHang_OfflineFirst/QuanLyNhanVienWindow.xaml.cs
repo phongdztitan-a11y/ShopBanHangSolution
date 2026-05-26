@@ -1,6 +1,7 @@
 ﻿using ShopBanHang_OfflineFirst.Data;
 using ShopBanHang_OfflineFirst.Services;
 using ShopBanHang.Shared;
+using ShopBanHang.Shared.Security;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -145,7 +146,7 @@ namespace ShopBanHang_OfflineFirst
                 {
                     Id = Guid.NewGuid().ToString(),
                     TaiKhoan = taiKhoan,
-                    MatKhau = matKhau,
+                    MatKhau = PasswordHasher.Hash(matKhau),
                     HoTen = hoTen,
                     VaiTro = cmbVaiTro.Text.Contains("QL") ? "QL" : "NV",
                     MaChiNhanh = maCN, // Lưu mã chi nhánh từ ComboBox
@@ -170,7 +171,7 @@ namespace ShopBanHang_OfflineFirst
                 _idNhanVienDangChon = nv.Id;
                 txtTaiKhoan.Text = nv.TaiKhoan;
                 txtTaiKhoan.IsReadOnly = true;
-                txtMatKhau.Text = nv.MatKhau;
+                txtMatKhau.Clear();
                 txtHoTen.Text = nv.HoTen;
 
                 bool laAdminTong = App.LaTaiKhoanAdminTong(nv.Id, nv.TaiKhoan);
@@ -207,7 +208,9 @@ namespace ShopBanHang_OfflineFirst
                         return;
                     }
 
-                    nv.MatKhau = txtMatKhau.Text.Trim();
+                    string matKhauMoi = txtMatKhau.Text.Trim();
+                    if (!string.IsNullOrWhiteSpace(matKhauMoi))
+                        nv.MatKhau = PasswordHasher.Hash(matKhauMoi);
                     nv.HoTen = txtHoTen.Text.Trim();
                     nv.VaiTro = cmbVaiTro.Text.Contains("QL") ? "QL" : "NV";
 

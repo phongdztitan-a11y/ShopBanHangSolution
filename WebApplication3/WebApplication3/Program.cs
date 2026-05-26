@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using WebApplication3.Data;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,7 +15,33 @@ builder.Services.AddControllers()
     });
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "Token",
+        In = ParameterLocation.Header,
+        Description = "Dán token nhận được từ /api/Sync/LoginNhanVien."
+    });
+
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
 
 // --- BƯỚC 2: DATABASE (Render: DATABASE_URL dạng postgres://, thường không có :5432 → Uri.Port = -1) ---
 var connectionString = ResolvePostgresConnectionString(builder.Configuration);

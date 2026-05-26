@@ -1,6 +1,7 @@
 ﻿using ShopBanHang_OfflineFirst.Data;
 using ShopBanHang_OfflineFirst.Services;
 using ShopBanHang.Shared;
+using ShopBanHang.Shared.Security;
 using System;
 using System.Threading.Tasks;
 using System.Linq;
@@ -53,7 +54,8 @@ namespace ShopBanHang_OfflineFirst
 
                 bool laAdminTong = App.LaTaiKhoanAdminTong(nvServer.Id, nvServer.TaiKhoan);
                 nvLocal.HoTen = nvServer.HoTen;
-                nvLocal.MatKhau = nvServer.MatKhau;
+                if (!string.IsNullOrWhiteSpace(nvServer.MatKhau))
+                    nvLocal.MatKhau = nvServer.MatKhau;
                 nvLocal.MaNhanVien = nvServer.MaNhanVien;
                 nvLocal.LanDangNhapOnlineGanNhat = nvServer.LanDangNhapOnlineGanNhat;
                 nvLocal.NgayCapNhat = nvServer.NgayCapNhat;
@@ -214,14 +216,26 @@ namespace ShopBanHang_OfflineFirst
             using (var db = new AppDbContext())
             {
                 var hopLe = await db.NhanViens
-                    .Where(u => !u.DaXoa && u.TaiKhoan == taiKhoan && u.MatKhau == matKhau)
+                    .Where(u => !u.DaXoa && u.TaiKhoan == taiKhoan)
                     .ToListAsync();
+
+                hopLe = hopLe
+                    .Where(u => PasswordHasher.Verify(matKhau, u.MatKhau))
+                    .ToList();
 
                 // Ưu tiên bản ADMIN_001 nếu trùng tài khoản (dữ liệu lỗi thời)
                 var user = hopLe.FirstOrDefault(u => u.Id == App.IdNhanVienAdminTong) ?? hopLe.FirstOrDefault();
 
                 if (user != null)
                 {
+                    if (!PasswordHasher.IsHashed(user.MatKhau))
+                    {
+                        user.MatKhau = PasswordHasher.Hash(matKhau);
+                        user.TrangThaiDongBo = 0;
+                        user.NgayCapNhat = DateTime.UtcNow;
+                        await db.SaveChangesAsync();
+                    }
+
                     if (App.LaTaiKhoanAdminTong(user.Id, user.TaiKhoan))
                     {
                         MessageBox.Show("Tài khoản admin tổng yêu cầu online để đăng nhập.", "Yêu cầu kết nối");

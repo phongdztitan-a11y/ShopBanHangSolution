@@ -15,6 +15,7 @@ namespace ShopBanHang_OfflineFirst.Services
     {
         private readonly HttpClient _httpClient;
         private string _baseUrl;
+        private static string? _authToken;
 
         /// <summary>URL API đang dùng (đọc từ server.url hoặc appsettings.json cạnh .exe).</summary>
         public string BaseUrl => _baseUrl;
@@ -35,6 +36,7 @@ namespace ShopBanHang_OfflineFirst.Services
             _baseUrl = ApiEndpointConfig.ResolveBaseUrl();
             _httpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
             ApplyNgrokHeadersIfNeeded();
+            ApplyAuthHeader();
         }
 
         /// <summary>Cập nhật URL sau khi đọc discovery.url hoặc sửa server.url.</summary>
@@ -42,6 +44,7 @@ namespace ShopBanHang_OfflineFirst.Services
         {
             _baseUrl = ApiEndpointConfig.NormalizeApiBaseUrl(baseUrl);
             ApplyNgrokHeadersIfNeeded();
+            ApplyAuthHeader();
         }
 
         /// <summary>Thử tải URL mới từ discovery.url; trả về URL đang dùng.</summary>
@@ -64,6 +67,13 @@ namespace ShopBanHang_OfflineFirst.Services
                 _httpClient.DefaultRequestHeaders.TryAddWithoutValidation(
                     "ngrok-skip-browser-warning", "true");
             }
+        }
+
+        private void ApplyAuthHeader()
+        {
+            _httpClient.DefaultRequestHeaders.Remove("Authorization");
+            if (!string.IsNullOrWhiteSpace(_authToken))
+                _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", "Bearer " + _authToken);
         }
 
         public async Task<(bool Ok, string? ErrorMessage)> PostSyncHoaDonsAsync(object dongBoWrapper)
@@ -327,7 +337,12 @@ namespace ShopBanHang_OfflineFirst.Services
                 if (response.IsSuccessStatusCode)
                 {
                     var body = await response.Content.ReadFromJsonAsync<LoginNhanVienResponse>();
-                    if (body?.NhanVien != null) return OnlineLoginResult.Success(body.NhanVien);
+                    if (body?.NhanVien != null)
+                    {
+                        _authToken = body.Token;
+                        ApplyAuthHeader();
+                        return OnlineLoginResult.Success(body.NhanVien);
+                    }
                     return OnlineLoginResult.NetworkError("Server không trả dữ liệu tài khoản.");
                 }
 
@@ -348,6 +363,7 @@ namespace ShopBanHang_OfflineFirst.Services
     {
         public bool Success { get; set; }
         public NhanVien? NhanVien { get; set; }
+        public string Token { get; set; } = string.Empty;
     }
 
     public class OnlineLoginResult

@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using ShopBanHang.Shared;
 using ShopBanHang.Shared.Models;
+using ShopBanHang.Shared.Security;
 using ShopBanHang_OfflineFirst.Data;
 using ShopBanHang_OfflineFirst.Services;
 using ShopBanHang_OfflineFirst.Views;
@@ -637,7 +638,7 @@ namespace ShopBanHang_OfflineFirst
                     {
                         Id = App.IdNhanVienAdminTong,
                         TaiKhoan = App.TaiKhoanAdminTong,
-                        MatKhau = "123",
+                        MatKhau = PasswordHasher.Hash("123"),
                         HoTen = "Quản Trị Viên",
                         VaiTro = App.VaiTroAdminHeThong,
                         MaChiNhanh = App.MaChiNhanhTong,
@@ -1045,7 +1046,8 @@ namespace ShopBanHang_OfflineFirst
 
                 bool laAdminTong = App.LaTaiKhoanAdminTong(nvServer.Id, nvServer.TaiKhoan);
                 nvLocal.HoTen = nvServer.HoTen;
-                nvLocal.MatKhau = nvServer.MatKhau;
+                if (!string.IsNullOrWhiteSpace(nvServer.MatKhau))
+                    nvLocal.MatKhau = nvServer.MatKhau;
                 nvLocal.MaNhanVien = nvServer.MaNhanVien;
                 nvLocal.LanDangNhapOnlineGanNhat = nvServer.LanDangNhapOnlineGanNhat;
                 nvLocal.NgayCapNhat = nvServer.NgayCapNhat;
