@@ -16,29 +16,8 @@ builder.Services.AddControllers()
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// --- BƯỚC 2: DATABASE ---
-// --- BƯỚC 2: DATABASE ---
-var connectionString =
-    Environment.GetEnvironmentVariable("DATABASE_URL")
-    ?? builder.Configuration.GetConnectionString("DefaultConnection");
-
-// Nếu Render trả về dạng postgres://...
-if (!string.IsNullOrEmpty(connectionString) &&
-   (connectionString.StartsWith("postgresql://") ||
-    connectionString.StartsWith("postgres://")))
-{
-    var databaseUri = new Uri(connectionString);
-
-    var userInfo = databaseUri.UserInfo.Split(':');
-
-    connectionString =
-        $"Host={databaseUri.Host};" +
-        $"Port={databaseUri.Port};" +
-        $"Database={databaseUri.AbsolutePath.TrimStart('/')};" +
-        $"Username={userInfo[0]};" +
-        $"Password={userInfo[1]};" +
-        $"SSL Mode=Require;Trust Server Certificate=true";
-}
+// --- BƯỚC 2: DATABASE (Render: DATABASE_URL dạng postgres://, thường không có :5432 → Uri.Port = -1) ---
+var connectionString = ResolvePostgresConnectionString(builder.Configuration);
 
 builder.Services.AddDbContext<ServerDbContext>(options =>
     options.UseNpgsql(connectionString));
@@ -69,3 +48,32 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+static string ResolvePostgresConnectionString(IConfiguration configuration)
+{
+    var raw = Environment.GetEnvironmentVariable("DATABASE_URL")
+              ?? configuration.GetConnectionString("DefaultConnection");
+
+    if (string.IsNullOrWhiteSpace(raw))
+        throw new InvalidOperationException(
+            "Thiếu DATABASE_URL (Render) hoặc ConnectionStrings:DefaultConnection.");
+
+    if (!raw.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase) &&
+        !raw.StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase))
+        return raw;
+
+    var databaseUri = new Uri(raw);
+    var userParts = databaseUri.UserInfo.Split(':', 2);
+    var username = Uri.UnescapeDataString(userParts[0]);
+    var password = userParts.Length > 1 ? Uri.UnescapeDataString(userParts[1]) : string.Empty;
+    var port = databaseUri.Port > 0 ? databaseUri.Port : 5432;
+    var database = databaseUri.AbsolutePath.TrimStart('/');
+
+    return
+        $"Host={databaseUri.Host};" +
+        $"Port={port};" +
+        $"Database={database};" +
+        $"Username={username};" +
+        $"Password={password};" +
+        "SSL Mode=Require;Trust Server Certificate=true";
+}

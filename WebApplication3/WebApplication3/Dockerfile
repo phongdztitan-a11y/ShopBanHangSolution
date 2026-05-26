@@ -13,8 +13,4 @@ WORKDIR /app
 
 COPY --from=build /app/publish .
 
-ENV ASPNETCORE_URLS=http://+:10000
-
-EXPOSE 10000
-
 ENTRYPOINT ["dotnet", "WebApplication3.dll"]
