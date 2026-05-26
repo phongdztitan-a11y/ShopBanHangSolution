@@ -8,7 +8,7 @@ namespace ShopBanHang.Shared
     public class HoaDon : BaseModel
     {
         public string MaHoaDon { get; set; } = string.Empty;
-        public DateTime NgayLap { get; set; } = DateTime.Now;
+        public DateTime NgayLap { get; set; } = DateTime.UtcNow;
         public double TongTien { get; set; }
         public string? SdtKhachHang { get; set; }
 

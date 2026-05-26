@@ -38,7 +38,7 @@ namespace ShopBanHang_OfflineFirst
                 ma = parts.Last().ToUpper();
             }
 
-            string thoiGian = DateTime.Now.ToString("yyMMddHHmmss");
+            string thoiGian = DateTime.UtcNow.ToString("yyMMddHHmmss");
             return $"{tienTo}-{ma}-{thoiGian}";
         }
 

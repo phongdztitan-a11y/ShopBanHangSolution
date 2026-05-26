@@ -14,8 +14,8 @@ namespace ShopBanHang_OfflineFirst
         public LichSuHoaDonWindow()
         {
             InitializeComponent();
-            dpTuNgay.SelectedDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
-            dpDenNgay.SelectedDate = DateTime.Now;
+            dpTuNgay.SelectedDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
+            dpDenNgay.SelectedDate = DateTime.UtcNow;
             LoadLichSuHoaDon();
         }
 
@@ -75,8 +75,8 @@ namespace ShopBanHang_OfflineFirst
         {
             txtTimKiemHĐ.Text = "";
             // Quay lại mặc định đầu tháng thay vì null
-            dpTuNgay.SelectedDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
-            dpDenNgay.SelectedDate = DateTime.Now;
+            dpTuNgay.SelectedDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
+            dpDenNgay.SelectedDate = DateTime.UtcNow;
             LoadLichSuHoaDon();
         }
 

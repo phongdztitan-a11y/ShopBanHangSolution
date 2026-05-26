@@ -23,8 +23,8 @@ namespace ShopBanHang_OfflineFirst
         public BaoCaoDoanhThuWindow()
         {
             InitializeComponent();
-            dpTu.SelectedDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
-            dpDen.SelectedDate = DateTime.Now;
+            dpTu.SelectedDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
+            dpDen.SelectedDate = DateTime.UtcNow;
 
             LoadDanhSachChiNhanh();
         }

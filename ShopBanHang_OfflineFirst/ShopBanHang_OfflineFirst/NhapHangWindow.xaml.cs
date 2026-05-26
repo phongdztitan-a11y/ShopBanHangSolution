@@ -165,7 +165,7 @@ namespace ShopBanHang_OfflineFirst
                 MauSac = mau,
                 GiaBan = giaBan,
                 MaChiNhanh = App.ChiNhanhHienTai,
-                NgayCapNhat = DateTime.Now,
+                NgayCapNhat = DateTime.UtcNow,
                 TrangThaiDongBo = 0
             };
             db.SanPhams.Add(spMoi);
@@ -210,7 +210,7 @@ namespace ShopBanHang_OfflineFirst
                 sp.KichCo = size;
                 sp.MauSac = mau;
                 sp.GiaBan = giaBan;
-                sp.NgayCapNhat = DateTime.Now;
+                sp.NgayCapNhat = DateTime.UtcNow;
                 sp.TrangThaiDongBo = 0;
 
                 var tonKhoRow = await db.TonKhoChiNhanhs.FirstOrDefaultAsync(t =>
@@ -294,7 +294,7 @@ namespace ShopBanHang_OfflineFirst
                 if (spMark != null)
                 {
                     spMark.TrangThaiDongBo = 1;
-                    spMark.NgayCapNhat = DateTime.Now;
+                    spMark.NgayCapNhat = DateTime.UtcNow;
                     await db.SaveChangesAsync();
                 }
 

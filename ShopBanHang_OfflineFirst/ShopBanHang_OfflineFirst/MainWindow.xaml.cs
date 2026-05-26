@@ -70,7 +70,7 @@ namespace ShopBanHang_OfflineFirst
                         HoTen = "Khách bán lẻ",
                         SoDienThoai = "0000000000",
                         DiaChi = "", // THÊM DÒNG NÀY: Không được để null
-                        NgayCapNhat = DateTime.Now,
+                        NgayCapNhat = DateTime.UtcNow,
                         TrangThaiDongBo = 1,
                         MaChiNhanh = _chiNhanh,
                         DaXoa = false
@@ -285,8 +285,8 @@ namespace ShopBanHang_OfflineFirst
                         var hoaDonMoi = new HoaDon
                         {
                             Id = Guid.NewGuid().ToString(),
-                            MaHoaDon = "HD" + DateTime.Now.ToString("yyyyMMddHHmmss"),
-                            NgayLap = DateTime.Now,
+                            MaHoaDon = "HD" + DateTime.UtcNow.ToString("yyyyMMddHHmmss"),
+                            NgayLap = DateTime.UtcNow,
                             TongTien = _gioHang.Sum(x => x.ThanhTien),
                             IdNhanVien = _idNhanVienHienTai,
                             HoTenNguoiBan = _tenNhanVien,
@@ -295,7 +295,7 @@ namespace ShopBanHang_OfflineFirst
                             // Nếu khách hàng hiện tại không tồn tại (chưa lưu), ép về KHACH_LE
                             IdKhachHang = checkKhach ? _idKhachHangHienTai : "KHACH_LE",
                             SdtKhachHang = sdt,
-                            NgayCapNhat = DateTime.Now,
+                            NgayCapNhat = DateTime.UtcNow,
                             DaXoa = false
                         };
 
@@ -332,7 +332,7 @@ namespace ShopBanHang_OfflineFirst
                                     throw new Exception($"Sản phẩm {item.TenSanPham} đã hết hàng!");
 
                                 tonKho.SoLuong -= item.SoLuong;
-                                tonKho.NgayCapNhat = DateTime.Now;
+                                tonKho.NgayCapNhat = DateTime.UtcNow;
                             }
                         }
 
@@ -395,7 +395,7 @@ namespace ShopBanHang_OfflineFirst
                     Id = maChiNhanh,
                     MaChiNhanh = maChiNhanh,
                     TenChiNhanh = chiNhanhTheoMa.TenChiNhanh,
-                    NgayCapNhat = DateTime.Now,
+                    NgayCapNhat = DateTime.UtcNow,
                     TrangThaiDongBo = chiNhanhTheoMa.TrangThaiDongBo,
                     DaXoa = false
                 });
@@ -403,7 +403,7 @@ namespace ShopBanHang_OfflineFirst
 
             // Ẩn bản ghi lệch để tránh hiển thị trùng chi nhánh trên combobox
             chiNhanhTheoMa.DaXoa = true;
-            chiNhanhTheoMa.NgayCapNhat = DateTime.Now;
+            chiNhanhTheoMa.NgayCapNhat = DateTime.UtcNow;
             db.SaveChanges();
         }
 
@@ -955,7 +955,7 @@ namespace ShopBanHang_OfflineFirst
                                     spLocal.KichCo = spServer.KichCo;
                                     spLocal.MauSac = spServer.MauSac;
                                     spLocal.DaXoa = spServer.DaXoa;
-                                    spLocal.NgayCapNhat = DateTime.Now;
+                                    spLocal.NgayCapNhat = DateTime.UtcNow;
                                 }
                             }
 
@@ -1148,7 +1148,7 @@ namespace ShopBanHang_OfflineFirst
                 foreach (var nv in ds)
                 {
                     nv.TrangThaiDongBo = 1;
-                    nv.NgayCapNhat = DateTime.Now;
+                    nv.NgayCapNhat = DateTime.UtcNow;
                 }
 
                 await db.SaveChangesAsync();
@@ -1174,7 +1174,7 @@ namespace ShopBanHang_OfflineFirst
                 foreach (var cn in ds)
                 {
                     cn.TrangThaiDongBo = 1;
-                    cn.NgayCapNhat = DateTime.Now;
+                    cn.NgayCapNhat = DateTime.UtcNow;
                 }
                 await db.SaveChangesAsync();
                 return (true, null);
@@ -1199,7 +1199,7 @@ namespace ShopBanHang_OfflineFirst
                 foreach (var tk in ds)
                 {
                     tk.TrangThaiDongBo = 1;
-                    tk.NgayCapNhat = DateTime.Now;
+                    tk.NgayCapNhat = DateTime.UtcNow;
                 }
                 await db.SaveChangesAsync();
                 return (true, null);
@@ -1224,7 +1224,7 @@ namespace ShopBanHang_OfflineFirst
                 foreach (var kh in ds)
                 {
                     kh.TrangThaiDongBo = 1;
-                    kh.NgayCapNhat = DateTime.Now;
+                    kh.NgayCapNhat = DateTime.UtcNow;
                 }
 
                 await db.SaveChangesAsync();
@@ -1255,7 +1255,7 @@ namespace ShopBanHang_OfflineFirst
                             return (false, $"Không đồng bộ được sản phẩm {sp.TenSanPham}: {postErr}");
 
                         sp.TrangThaiDongBo = 1;
-                        sp.NgayCapNhat = DateTime.Now;
+                        sp.NgayCapNhat = DateTime.UtcNow;
                     }
 
                     await db.SaveChangesAsync();

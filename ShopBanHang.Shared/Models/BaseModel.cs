@@ -13,7 +13,7 @@ namespace ShopBanHang.Shared
         public int TrangThaiDongBo { get; set; } = 0;
 
         // 3. Thời gian cập nhật để Server biết bản ghi nào mới hơn
-        public DateTime NgayCapNhat { get; set; } = DateTime.Now;
+        public DateTime NgayCapNhat { get; set; } = DateTime.UtcNow;
 
         // 4. Mã chi nhánh để phân loại dữ liệu
         public string MaChiNhanh { get; set; } = string.Empty;

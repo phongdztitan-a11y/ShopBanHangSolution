@@ -150,7 +150,7 @@ namespace ShopBanHang_OfflineFirst
                     VaiTro = cmbVaiTro.Text.Contains("QL") ? "QL" : "NV",
                     MaChiNhanh = maCN, // Lưu mã chi nhánh từ ComboBox
                     TrangThaiDongBo = 0,
-                    NgayCapNhat = DateTime.Now
+                    NgayCapNhat = DateTime.UtcNow
                 };
 
                 db.NhanViens.Add(nvMoi);
@@ -224,7 +224,7 @@ namespace ShopBanHang_OfflineFirst
                     }
 
                     nv.TrangThaiDongBo = 0;
-                    nv.NgayCapNhat = DateTime.Now;
+                    nv.NgayCapNhat = DateTime.UtcNow;
 
                     db.SaveChanges();
                     await DongBoNhanVienLenServer(nv);
@@ -295,7 +295,7 @@ namespace ShopBanHang_OfflineFirst
                 }
 
                 nv.DaXoa = true;
-                nv.NgayCapNhat = DateTime.Now;
+                nv.NgayCapNhat = DateTime.UtcNow;
                 nv.TrangThaiDongBo = ok ? 1 : 0;
                 db.SaveChanges();
                 LoadDanhSachNhanVien();

@@ -98,7 +98,7 @@ namespace ShopBanHang_OfflineFirst.Data
                     TenChiNhanh = "Chi Nhánh Tổng",
                     DaXoa = false,
                     TrangThaiDongBo = 1,
-                    NgayCapNhat = DateTime.Now
+                    NgayCapNhat = DateTime.UtcNow
                 }
             );
 
@@ -114,7 +114,7 @@ namespace ShopBanHang_OfflineFirst.Data
                     MaChiNhanh = "CN_GOC",
                     TrangThaiDongBo = 1,
                     DaXoa = false,
-                    NgayCapNhat = DateTime.Now
+                    NgayCapNhat = DateTime.UtcNow
                 }
             );
 

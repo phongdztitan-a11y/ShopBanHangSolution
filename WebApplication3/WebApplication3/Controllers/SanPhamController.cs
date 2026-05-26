@@ -35,7 +35,7 @@ namespace WebApplication3.Controllers
                 sanPhamDaCo.KichCo = sanPham.KichCo;
                 sanPhamDaCo.MauSac = sanPham.MauSac;
                 sanPhamDaCo.GiaBan = sanPham.GiaBan;
-                sanPhamDaCo.NgayCapNhat = DateTime.Now;
+                sanPhamDaCo.NgayCapNhat = DateTime.UtcNow;
                 sanPhamDaCo.DaXoa = sanPham.DaXoa;
                 sanPhamDaCo.MaChiNhanh = sanPham.MaChiNhanh;
                 await _context.SaveChangesAsync();

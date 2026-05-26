@@ -195,9 +195,9 @@ namespace ShopBanHang_OfflineFirst
                         local.DaXoa = false;
                     }
 
-                    local.LanDangNhapOnlineGanNhat = DateTime.Now;
+                    local.LanDangNhapOnlineGanNhat = DateTime.UtcNow;
                     local.TrangThaiDongBo = 1;
-                    local.NgayCapNhat = DateTime.Now;
+                    local.NgayCapNhat = DateTime.UtcNow;
                     await db.SaveChangesAsync();
 
                     DangNhapThanhCong(local, maChiNhanhSelected);
@@ -231,7 +231,7 @@ namespace ShopBanHang_OfflineFirst
                     if (LaTaiKhoanQuanLyKhongPhaiAdminTong(user))
                     {
                         var moc = user.LanDangNhapOnlineGanNhat;
-                        if (!moc.HasValue || moc.Value < DateTime.Now.AddDays(-SoNgayChoPhepDangNhapOffline))
+                        if (!moc.HasValue || moc.Value < DateTime.UtcNow.AddDays(-SoNgayChoPhepDangNhapOffline))
                         {
                             MessageBox.Show(
                                 $"Tài khoản quản lý/NV cần đăng nhập online ít nhất 1 lần trong {SoNgayChoPhepDangNhapOffline} ngày gần đây để được dùng offline.",

@@ -62,7 +62,7 @@ namespace ShopBanHang_OfflineFirst
 
                         // 3. Các trường từ BaseModel
                         TrangThaiDongBo = 0,
-                        NgayCapNhat = DateTime.Now,  // <--- Thêm dòng này
+                        NgayCapNhat = DateTime.UtcNow,  // <--- Thêm dòng này
                         MaChiNhanh = App.ChiNhanhHienTai,
                         DaXoa = false                // <--- Thêm dòng này cho chắc chắn
                     };

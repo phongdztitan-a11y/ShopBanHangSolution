@@ -42,7 +42,7 @@ namespace WebApplication3.Controllers
                     MaChiNhanh = AdminChiNhanh,
                     DaXoa = false,
                     TrangThaiDongBo = 1,
-                    NgayCapNhat = DateTime.Now
+                    NgayCapNhat = DateTime.UtcNow
                 });
                 await _context.SaveChangesAsync();
                 return;
@@ -57,7 +57,7 @@ namespace WebApplication3.Controllers
                 admin.MatKhau = AdminMatKhauMacDinh;
             if (string.IsNullOrWhiteSpace(admin.HoTen))
                 admin.HoTen = "Quản Trị Viên";
-            admin.NgayCapNhat = DateTime.Now;
+            admin.NgayCapNhat = DateTime.UtcNow;
             await _context.SaveChangesAsync();
         }
 
@@ -105,7 +105,7 @@ namespace WebApplication3.Controllers
                                 TenChiNhanh = maChiNhanh,
                                 DaXoa = false,
                                 TrangThaiDongBo = 1,
-                                NgayCapNhat = DateTime.Now
+                                NgayCapNhat = DateTime.UtcNow
                             };
                             _context.ChiNhanhs.Add(newChi);
                         }
@@ -133,7 +133,7 @@ namespace WebApplication3.Controllers
                                     MaChiNhanh = maChiNhanh,
                                     DaXoa = false,
                                     TrangThaiDongBo = 1,
-                                    NgayCapNhat = DateTime.Now
+                                    NgayCapNhat = DateTime.UtcNow
                                 });
                             }
                             else
@@ -151,7 +151,7 @@ namespace WebApplication3.Controllers
                                     MaChiNhanh = maChiNhanh,
                                     DaXoa = false,
                                     TrangThaiDongBo = 1,
-                                    NgayCapNhat = DateTime.Now
+                                    NgayCapNhat = DateTime.UtcNow
                                 });
                             }
                         }
@@ -179,7 +179,7 @@ namespace WebApplication3.Controllers
                                 MaChiNhanh = maChiNhanh,
                                 DaXoa = false,
                                 TrangThaiDongBo = 1,
-                                NgayCapNhat = DateTime.Now
+                                NgayCapNhat = DateTime.UtcNow
                             });
                         }
                     }
@@ -317,7 +317,7 @@ namespace WebApplication3.Controllers
                         if (string.IsNullOrWhiteSpace(item.Id))
                             item.Id = item.MaChiNhanh;
                         item.TrangThaiDongBo = 1;
-                        if (item.NgayCapNhat == default) item.NgayCapNhat = DateTime.Now;
+                        if (item.NgayCapNhat == default) item.NgayCapNhat = DateTime.UtcNow;
                         _context.ChiNhanhs.Add(item);
                         continue;
                     }
@@ -330,7 +330,7 @@ namespace WebApplication3.Controllers
                     current.TenChiNhanh = item.TenChiNhanh;
                     current.DaXoa = item.DaXoa;
                     current.TrangThaiDongBo = 1;
-                    current.NgayCapNhat = item.NgayCapNhat == default ? DateTime.Now : item.NgayCapNhat;
+                    current.NgayCapNhat = item.NgayCapNhat == default ? DateTime.UtcNow : item.NgayCapNhat;
                 }
 
                 await _context.SaveChangesAsync();
@@ -397,7 +397,7 @@ namespace WebApplication3.Controllers
                         }
 
                         item.TrangThaiDongBo = 1;
-                        if (item.NgayCapNhat == default) item.NgayCapNhat = DateTime.Now;
+                        if (item.NgayCapNhat == default) item.NgayCapNhat = DateTime.UtcNow;
                         _context.KhachHangs.Add(item);
                         continue;
                     }
@@ -412,7 +412,7 @@ namespace WebApplication3.Controllers
                     current.MaChiNhanh = string.IsNullOrWhiteSpace(item.MaChiNhanh) ? current.MaChiNhanh : item.MaChiNhanh;
                     current.DaXoa = laKhachLe ? false : item.DaXoa;
                     current.TrangThaiDongBo = 1;
-                    current.NgayCapNhat = item.NgayCapNhat == default ? DateTime.Now : item.NgayCapNhat;
+                    current.NgayCapNhat = item.NgayCapNhat == default ? DateTime.UtcNow : item.NgayCapNhat;
                 }
 
                 await _context.SaveChangesAsync();
@@ -449,7 +449,7 @@ namespace WebApplication3.Controllers
                         if (string.IsNullOrWhiteSpace(item.Id))
                             item.Id = Guid.NewGuid().ToString();
                         item.TrangThaiDongBo = 1;
-                        if (item.NgayCapNhat == default) item.NgayCapNhat = DateTime.Now;
+                        if (item.NgayCapNhat == default) item.NgayCapNhat = DateTime.UtcNow;
                         _context.TonKhoChiNhanhs.Add(item);
                         continue;
                     }
@@ -462,7 +462,7 @@ namespace WebApplication3.Controllers
                     current.SoLuong = item.SoLuong;
                     current.DaXoa = item.DaXoa;
                     current.TrangThaiDongBo = 1;
-                    current.NgayCapNhat = item.NgayCapNhat == default ? DateTime.Now : item.NgayCapNhat;
+                    current.NgayCapNhat = item.NgayCapNhat == default ? DateTime.UtcNow : item.NgayCapNhat;
                 }
 
                 await _context.SaveChangesAsync();
@@ -513,8 +513,8 @@ namespace WebApplication3.Controllers
                 user.DaXoa = false;
             }
 
-            user.LanDangNhapOnlineGanNhat = DateTime.Now;
-            user.NgayCapNhat = DateTime.Now;
+            user.LanDangNhapOnlineGanNhat = DateTime.UtcNow;
+            user.NgayCapNhat = DateTime.UtcNow;
             user.TrangThaiDongBo = 1;
             await _context.SaveChangesAsync();
 
@@ -560,7 +560,7 @@ namespace WebApplication3.Controllers
                                 item.MatKhau = AdminMatKhauMacDinh;
                         }
                         item.TrangThaiDongBo = 1;
-                        if (item.NgayCapNhat == default) item.NgayCapNhat = DateTime.Now;
+                        if (item.NgayCapNhat == default) item.NgayCapNhat = DateTime.UtcNow;
                         _context.NhanViens.Add(item);
                         continue;
                     }
@@ -590,7 +590,7 @@ namespace WebApplication3.Controllers
                     current.MatKhau = item.MatKhau;
                     current.MaNhanVien = item.MaNhanVien;
                     current.TrangThaiDongBo = 1;
-                    current.NgayCapNhat = item.NgayCapNhat == default ? DateTime.Now : item.NgayCapNhat;
+                    current.NgayCapNhat = item.NgayCapNhat == default ? DateTime.UtcNow : item.NgayCapNhat;
                 }
 
                 await _context.SaveChangesAsync();
@@ -635,7 +635,7 @@ namespace WebApplication3.Controllers
 
                     nv.DaXoa = true;
                     nv.TrangThaiDongBo = 1;
-                    nv.NgayCapNhat = DateTime.Now;
+                    nv.NgayCapNhat = DateTime.UtcNow;
                 }
 
                 await _context.SaveChangesAsync();

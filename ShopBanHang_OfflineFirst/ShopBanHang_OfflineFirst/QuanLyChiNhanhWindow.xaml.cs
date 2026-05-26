@@ -163,7 +163,7 @@ namespace ShopBanHang_OfflineFirst
                                 }
 
                                 nv.DaXoa = true;
-                                nv.NgayCapNhat = DateTime.Now;
+                                nv.NgayCapNhat = DateTime.UtcNow;
                                 nv.TrangThaiDongBo = dongBoNvLenServer ? 1 : 0;
                             }
                         }
@@ -171,7 +171,7 @@ namespace ShopBanHang_OfflineFirst
                         foreach (var item in canXoa)
                         {
                             item.DaXoa = true;
-                            item.NgayCapNhat = DateTime.Now;
+                            item.NgayCapNhat = DateTime.UtcNow;
                         }
 
                         db.SaveChanges();
