@@ -23,8 +23,9 @@ var connectionString =
     ?? builder.Configuration.GetConnectionString("DefaultConnection");
 
 // Nếu Render trả về dạng postgres://...
-if (connectionString.StartsWith("postgresql://") ||
-    connectionString.StartsWith("postgres://"))
+if (!string.IsNullOrEmpty(connectionString) &&
+   (connectionString.StartsWith("postgresql://") ||
+    connectionString.StartsWith("postgres://")))
 {
     var databaseUri = new Uri(connectionString);
 
