@@ -1,25 +1,5 @@
-# Build
 bin/
 obj/
-
-# Visual Studio
 .vs/
 *.user
 *.suo
-
-# Rider
-.idea/
-
-# Logs
-*.log
-
-# Env
-.env
-
-# Installer output
-*.msi
-setup.exe
-
-# Backup/temp
-*.tmp
-~$*

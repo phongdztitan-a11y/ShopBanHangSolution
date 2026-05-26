@@ -3,6 +3,8 @@ WORKDIR /src
 
 COPY . .
 
+WORKDIR /src/WebApplication3/WebApplication3
+
 RUN dotnet restore WebApplication3.csproj
 RUN dotnet publish WebApplication3.csproj -c Release -o /app/publish
 
