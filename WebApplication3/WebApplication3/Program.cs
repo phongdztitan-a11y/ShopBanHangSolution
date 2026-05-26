@@ -17,15 +17,35 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // --- BƯỚC 2: DATABASE ---
+// --- BƯỚC 2: DATABASE ---
+var connectionString =
+    Environment.GetEnvironmentVariable("DATABASE_URL")
+    ?? builder.Configuration.GetConnectionString("DefaultConnection");
+
+// Nếu Render trả về dạng postgres://...
+if (connectionString.StartsWith("postgresql://") ||
+    connectionString.StartsWith("postgres://"))
+{
+    var databaseUri = new Uri(connectionString);
+
+    var userInfo = databaseUri.UserInfo.Split(':');
+
+    connectionString =
+        $"Host={databaseUri.Host};" +
+        $"Port={databaseUri.Port};" +
+        $"Database={databaseUri.AbsolutePath.TrimStart('/')};" +
+        $"Username={userInfo[0]};" +
+        $"Password={userInfo[1]};" +
+        $"SSL Mode=Require;Trust Server Certificate=true";
+}
+
 builder.Services.AddDbContext<ServerDbContext>(options =>
-    options.UseNpgsql(
-        builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(connectionString));
 
 var app = builder.Build();
 
-var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
 app.Urls.Add($"http://0.0.0.0:{port}");
-
 
 // ===== THÊM ĐOẠN NÀY =====
 using (var scope = app.Services.CreateScope())

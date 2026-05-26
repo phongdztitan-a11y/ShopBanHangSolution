@@ -29,8 +29,15 @@ namespace WebApplication3.Data
         public ServerDbContext CreateDbContext(string[] args)
         {
             var optionsBuilder = new DbContextOptionsBuilder<ServerDbContext>();
-            // Chuỗi kết nối có TrustServerCertificate=True để fix lỗi SSL ban nãy
-            optionsBuilder.UseSqlServer("Server=TRAN-PHONG\\SQLEXPRESS;Database=ShopBanHang_DoAn;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True");
+
+            optionsBuilder.UseNpgsql(
+    "Host=dpg-d8amd8jbc2fs7385p1bg-a.singapore-postgres.render.com;" +
+    "Port=5432;" +
+    "Database=shopbanhang_db;" +
+    "Username=shopbanhang_db_user;" +
+    "Password=qnAgnOInBwGwsrbUQ1D0ZWbmwOoElRIT;" +
+    "SSL Mode=Require;" +
+    "Trust Server Certificate=true");
 
             return new ServerDbContext(optionsBuilder.Options);
         }
