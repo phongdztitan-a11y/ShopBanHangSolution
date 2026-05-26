@@ -1,7 +1,3 @@
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
-WORKDIR /app
-EXPOSE 8080
-
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
@@ -9,15 +5,16 @@ COPY . .
 
 WORKDIR /src/WebApplication3/WebApplication3
 
-RUN dotnet restore "WebApplication3.csproj"
-RUN dotnet build "WebApplication3.csproj" -c Release -o /app/build
+RUN dotnet restore
+RUN dotnet publish -c Release -o /app/publish
 
-FROM build AS publish
-RUN dotnet publish "WebApplication3.csproj" -c Release -o /app/publish
-
-FROM base AS final
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 
-COPY --from=publish /app/publish .
+COPY --from=build /app/publish .
+
+ENV ASPNETCORE_URLS=http://+:10000
+
+EXPOSE 10000
 
 ENTRYPOINT ["dotnet", "WebApplication3.dll"]
