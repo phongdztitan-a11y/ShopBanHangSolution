@@ -1,0 +1,35 @@
+# Visual Studio
+.vs/
+*.user
+*.suo
+
+# Build
+bin/
+obj/
+
+# Environment
+.env
+.env.*
+
+# Publish
+publish/
+
+# Setup files
+*.msi
+*.exe
+
+# Logs
+*.log
+
+# Temp
+*.tmp
+
+# VSCode
+.vscode/
+
+# Rider
+.idea/
+
+# Windows
+Thumbs.db
+Desktop.ini
