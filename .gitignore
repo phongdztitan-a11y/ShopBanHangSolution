@@ -1,35 +1,25 @@
+# Build
+bin/
+obj/
+
 # Visual Studio
 .vs/
 *.user
 *.suo
 
-# Build
-bin/
-obj/
-
-# Environment
-.env
-.env.*
-
-# Publish
-publish/
-
-# Setup files
-*.msi
-*.exe
+# Rider
+.idea/
 
 # Logs
 *.log
 
-# Temp
+# Env
+.env
+
+# Installer output
+*.msi
+setup.exe
+
+# Backup/temp
 *.tmp
-
-# VSCode
-.vscode/
-
-# Rider
-.idea/
-
-# Windows
-Thumbs.db
-Desktop.ini
+~$*
