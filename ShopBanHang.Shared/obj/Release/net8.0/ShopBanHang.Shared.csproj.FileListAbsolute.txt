@@ -1,0 +1,14 @@
+C:\Users\phong\Desktop\doan\app\ShopBanHang.Shared\bin\Release\net8.0\ShopBanHang.Shared.deps.json
+C:\Users\phong\Desktop\doan\app\ShopBanHang.Shared\bin\Release\net8.0\ShopBanHang.Shared.runtimeconfig.json
+C:\Users\phong\Desktop\doan\app\ShopBanHang.Shared\bin\Release\net8.0\ShopBanHang.Shared.dll
+C:\Users\phong\Desktop\doan\app\ShopBanHang.Shared\bin\Release\net8.0\ShopBanHang.Shared.pdb
+C:\Users\phong\Desktop\doan\app\ShopBanHang.Shared\obj\Release\net8.0\ShopBanHang.Shared.csproj.AssemblyReference.cache
+C:\Users\phong\Desktop\doan\app\ShopBanHang.Shared\obj\Release\net8.0\ShopBanHang.Shared.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\phong\Desktop\doan\app\ShopBanHang.Shared\obj\Release\net8.0\ShopBanHang.Shared.AssemblyInfoInputs.cache
+C:\Users\phong\Desktop\doan\app\ShopBanHang.Shared\obj\Release\net8.0\ShopBanHang.Shared.AssemblyInfo.cs
+C:\Users\phong\Desktop\doan\app\ShopBanHang.Shared\obj\Release\net8.0\ShopBanHang.Shared.csproj.CoreCompileInputs.cache
+C:\Users\phong\Desktop\doan\app\ShopBanHang.Shared\obj\Release\net8.0\ShopBanHang.Shared.dll
+C:\Users\phong\Desktop\doan\app\ShopBanHang.Shared\obj\Release\net8.0\refint\ShopBanHang.Shared.dll
+C:\Users\phong\Desktop\doan\app\ShopBanHang.Shared\obj\Release\net8.0\ShopBanHang.Shared.pdb
+C:\Users\phong\Desktop\doan\app\ShopBanHang.Shared\obj\Release\net8.0\ShopBanHang.Shared.genruntimeconfig.cache
+C:\Users\phong\Desktop\doan\app\ShopBanHang.Shared\obj\Release\net8.0\ref\ShopBanHang.Shared.dll

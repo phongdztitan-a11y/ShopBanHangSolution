@@ -1,0 +1,4 @@
+# URL ngrok cho goi cai may B (khong anh huong app dev tren may A).
+# Doi ten thanh remote-server.url hoac chay:
+#   .\scripts\update-ngrok-url.ps1 -ForInstaller
+https://your-subdomain.ngrok-free.dev/api/

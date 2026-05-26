@@ -1,0 +1,11 @@
+# URL CỐ ĐỊNH (không đổi khi ngrok free đổi subdomain).
+# Client sẽ GET URL này trước mỗi lần đồng bộ để lấy apiBaseUrl mới.
+#
+# Nội dung file JSON tại URL discovery (ví dụ GitHub Gist raw, JSONBin, Netlify):
+#   {"apiBaseUrl":"https://xxxx.ngrok-free.dev/api/"}
+#
+# Trên máy A (server): chạy scripts\update-ngrok-url.ps1 sau mỗi lần khởi động ngrok
+# để cập nhật file discovery lên host tĩnh của bạn.
+#
+# Đổi tên file này thành discovery.url và chỉ giữ một dòng URL:
+https://example.com/shopbanhang-endpoint.json

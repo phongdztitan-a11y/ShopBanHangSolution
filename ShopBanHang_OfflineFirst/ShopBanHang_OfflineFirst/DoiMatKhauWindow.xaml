@@ -1,0 +1,20 @@
+﻿<Window x:Class="ShopBanHang_OfflineFirst.DoiMatKhauWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="ĐỔI MẬT KHẨU" Height="300" Width="400" WindowStartupLocation="CenterScreen">
+
+    <Grid >
+        <StackPanel>
+            <TextBlock Text="Mật khẩu cũ:" FontWeight="Bold"/>
+            <PasswordBox x:Name="txtMatKhauCu" Height="30" Margin="0,5,0,15"/>
+
+            <TextBlock Text="Mật khẩu mới:" FontWeight="Bold"/>
+            <PasswordBox x:Name="txtMatKhauMoi" Height="30" Margin="0,5,0,15"/>
+
+            <TextBlock Text="Xác nhận mật khẩu mới:" FontWeight="Bold"/>
+            <PasswordBox x:Name="txtXacNhan" Height="30" Margin="0,5,0,20"/>
+
+            <Button x:Name="btnLuuMatKhau" Content="CẬP NHẬT MẬT KHẨU" Height="40" Background="#17A2B8" Foreground="White" FontWeight="Bold" Click="btnLuuMatKhau_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>

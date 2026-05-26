@@ -1,0 +1,180 @@
+﻿<Window x:Class="ShopBanHang_OfflineFirst.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="PHẦN MỀM BÁN HÀNG POS - ĐA CHI NHÁNH" Height="768" Width="1338"
+        WindowStartupLocation="CenterScreen" WindowState="Maximized">
+
+    <Grid Background="#F4F6F8">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="30"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Background="#1877F2" Padding="10">
+            <Grid>
+                <TextBlock Text="HỆ THỐNG BÁN HÀNG OFFLINE-FIRST" Foreground="White" FontSize="20" FontWeight="Bold" VerticalAlignment="Center"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <TextBlock x:Name="txtThongTinNhanVien" Text="Xin chào..." Foreground="White" FontSize="16" Margin="0,0,15,0" VerticalAlignment="Center"/>
+
+                    <Button x:Name="btnDoiMatKhau" Content="Đổi mật khẩu" Padding="5" Background="#E4E6EB" Click="btnDoiMatKhau_Click"/>
+
+                    <Button x:Name="btnDangXuat" Content="Đăng xuất" Padding="5" Margin="10,0,0,0" Background="#DC3545" Foreground="White" FontWeight="Bold" Click="btnDangXuat_Click"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="1" Margin="10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="6*"/>
+                <ColumnDefinition Width="4*"/>
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0" Background="White" CornerRadius="5" Padding="10" Margin="0,0,10,0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="0,0,0,10">
+                        <TextBox x:Name="txtTimKiem" Width="200" Height="35" 
+             Tag="Nhập mã hoặc tên sản phẩm..." 
+             VerticalContentAlignment="Center" Padding="5,0"
+             TextChanged="txtTimKiem_TextChanged"
+             GotFocus="txtTimKiem_GotFocus" 
+             LostFocus="txtTimKiem_LostFocus"
+             FontStyle="Italic" Foreground="Gray" Text="Nhập mã hoặc tên sản phẩm..."/>
+
+                        <Button x:Name="btnLichSu" Content="Lịch sử HĐ" Width="100" Margin="10,0,0,0" Background="#17A2B8" Foreground="White" Click="btnLichSu_Click"/>
+
+                        <Button x:Name="btnBaoCao" Content="📊 Báo cáo" Width="100" Margin="5,0,0,0" Background="#28A745" Foreground="White" Click="btnBaoCao_Click"/>
+
+                        <Button x:Name="btnQuanLyNV" Content="QL nhân viên" Width="100" Margin="5,0,0,0" Background="#6F42C1" Foreground="White" Click="btnQuanLyNV_Click"/>
+
+                        <Button x:Name="btnNhapHang" Content="+ Nhập hàng" Width="100" Margin="5,0,0,0" Background="#FFC107" Click="btnNhapHang_Click"/>
+                        <Button x:Name="btnQuanLyChiNhanh" Content="🏢 QL chi nhánh" 
+        Width="100" Margin="5,0,0,0" 
+        Background="#E83E8C" Foreground="White" 
+        Click="btnQuanLyChiNhanh_Click"/>
+                    </StackPanel>
+
+                    <DataGrid x:Name="dgSanPham" MouseDoubleClick="dgSanPham_MouseDoubleClick" Grid.Row="1" AutoGenerateColumns="False" IsReadOnly="True" HeadersVisibility="Column">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Mã SKU" Binding="{Binding SKU}" Width="1.5*"/>
+                            <DataGridTextColumn Header="Tên Sản Phẩm" Binding="{Binding TenSanPham}" Width="2*"/>
+                            <DataGridTextColumn Header="Giá Bán" Binding="{Binding GiaBan}" Width="1*"/>
+                            <DataGridTextColumn Header="Tồn Kho" Binding="{Binding SoLuongTon}" Width="1*"/>
+                            
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </Border>
+
+            <Border Grid.Column="1" Background="White" CornerRadius="5" Padding="10">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <GroupBox Header="THÔNG TIN KHÁCH HÀNG" Grid.Row="0" Padding="5" Margin="0,0,0,10">
+                        <StackPanel>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBox x:Name="txtSoDienThoai" Height="30" Text="Nhập SĐT khách..." Foreground="Gray" VerticalContentAlignment="Center" Padding="5,0" GotFocus="txtSoDienThoai_GotFocus"/>
+                                <Button x:Name="btnTimKhach" Grid.Column="1" Content="Tìm/Thêm" 
+        Width="70" Margin="5,0,0,0" Background="#17A2B8" 
+        Foreground="White" Click="btnTimKhach_Click"/>
+                            </Grid>
+                            <TextBlock x:Name="txtTenKhachHang" Text="Khách lẻ (Chưa có thông tin)" Foreground="Blue" Margin="0,5,0,0" FontWeight="Bold"/>
+                        </StackPanel>
+                    </GroupBox>
+
+                    <DataGrid x:Name="dgGioHang" Grid.Row="1" AutoGenerateColumns="False" Margin="0,0,0,10" IsReadOnly="True">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Tên SP" Binding="{Binding TenSanPham}" Width="2*"/>
+
+                            <DataGridTemplateColumn Header="SL" Width="1.2*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                            <Button Content="-" Width="25" Click="btnGiamSL_Click" Tag="{Binding}"
+                        Background="#DC3545" Foreground="White" FontWeight="Bold"/>
+
+                                            <TextBlock Text="{Binding SoLuong}" Width="30" TextAlignment="Center" 
+                           VerticalAlignment="Center" FontWeight="Bold"/>
+
+                                            <Button Content="+" Width="25" Click="btnTangSL_Click" Tag="{Binding}"
+                        Foreground="White" FontWeight="Bold">
+                                                <Button.Style>
+                                                    <Style TargetType="Button">
+                                                        <Setter Property="Background" Value="#28A745"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsHetHang}" Value="True">
+                                                                <Setter Property="IsEnabled" Value="False"/>
+                                                                <Setter Property="Background" Value="Gray"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Button.Style>
+                                            </Button>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <DataGridTextColumn Header="Đơn giá" Binding="{Binding DonGia, StringFormat={}{0:N0}}" Width="1.2*"/>
+                            <DataGridTextColumn Header="Thành tiền" Binding="{Binding ThanhTien, StringFormat={}{0:N0}}" Width="1.5*"/>
+
+                            <DataGridTemplateColumn Width="Auto">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Content="🗑" Background="Transparent" BorderThickness="0" Foreground="Red" 
+                            Click="btnXoaDong_Click" Tag="{Binding}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <StackPanel Grid.Row="2">
+                        <Grid Margin="0,0,0,10">
+                            <TextBlock Text="TỔNG TIỀN:" FontSize="18" FontWeight="Bold"/>
+                            <TextBlock x:Name="txtTongTien" Text="0 đ" FontSize="22" FontWeight="Bold" Foreground="Red" HorizontalAlignment="Right"/>
+                        </Grid>
+                        <Button x:Name="btnThanhToan" Content="THANH TOÁN (F9)" Height="50" FontSize="18" FontWeight="Bold" Background="#28A745" Foreground="White" Click="btnThanhToan_Click"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <StatusBar Grid.Row="2" Background="#E9ECEF">
+            <StatusBarItem>
+                <StackPanel Orientation="Horizontal">
+                    <Ellipse x:Name="iconStatus" Width="10" Height="10" Fill="Gray" Margin="0,0,5,0"/>
+                    <TextBlock x:Name="txtStatus" Text="Đang kiểm tra kết nối..."/>
+                </StackPanel>
+            </StatusBarItem>
+            <Separator/>
+            <StatusBarItem>
+                <TextBlock x:Name="txtSoLuongDongBo" Text="Hóa đơn chờ đồng bộ: 0" FontWeight="Bold" Foreground="#D9534F" Margin="0,0,10,0"/>
+            </StatusBarItem>
+            <Separator/>
+            <StatusBarItem>
+                <TextBlock x:Name="txtApiEndpoint" Text="" FontSize="11" Foreground="#555" ToolTip="URL server API (server.url / discovery.url)"/>
+            </StatusBarItem>
+
+            <StatusBarItem HorizontalAlignment="Right">
+                <Button x:Name="btnCauHinhServer" Content="Cấu hình server" Padding="8,2" Click="btnCauHinhServer_Click"/>
+            </StatusBarItem>
+            <StatusBarItem HorizontalAlignment="Right">
+                <Button x:Name="btnDongBo" Content="Đồng bộ ngay" Background="#007BFF" Foreground="White" Padding="10,2" Click="btnDongBo_Click"/>
+            </StatusBarItem>
+        </StatusBar>
+    </Grid>
+</Window>

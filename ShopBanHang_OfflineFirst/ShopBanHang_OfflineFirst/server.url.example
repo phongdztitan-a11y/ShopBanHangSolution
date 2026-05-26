@@ -1,0 +1,5 @@
+# MAY A (dev): KHONG tao file server.url — app dung appsettings.json -> localhost:5191
+#
+# MAY B (client xa): file server.url duoc tao luc cai setup.exe (URL ngrok)
+# Hoac doi ten file nay thanh server.url va ghi mot dong URL, vi du:
+# https://your-subdomain.ngrok-free.dev/api/

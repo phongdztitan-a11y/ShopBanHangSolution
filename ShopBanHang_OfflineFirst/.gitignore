@@ -1,0 +1,17 @@
+# Visual Studio / .NET
+.vs/
+bin/
+obj/
+
+# User-specific files
+*.user
+*.suo
+
+# Per-machine URL (dev / installer)
+ShopBanHang_OfflineFirst/server.url
+ShopBanHang_OfflineFirst/discovery.url
+installer/remote-server.url
+
+# Package output
+publish/
+dist/

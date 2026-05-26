@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="../ShopBanHang.Shared/ShopBanHang.Shared.csproj" />
+  <Project Path="WebApplication3/WebApplication3.csproj" />
+</Solution>

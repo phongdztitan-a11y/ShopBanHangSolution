@@ -1,0 +1,16 @@
+[
+  {
+    "Name": "New Profile",
+    "Projects": [
+      {
+        "Path": "WebApplication3\\WebApplication3\\WebApplication3.csproj",
+        "Action": "Start",
+        "DebugTarget": "http"
+      },
+      {
+        "Path": "ShopBanHang_OfflineFirst\\ShopBanHang_OfflineFirst\\ShopBanHang_OfflineFirst.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]
