@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebApplication3.Data;
 using ShopBanHang.Shared;
+using WebApplication3.Security;
 
 namespace WebApplication3.Controllers
 {
@@ -27,6 +28,13 @@ namespace WebApplication3.Controllers
         [HttpPost]
         public async Task<ActionResult<SanPham>> PostSanPham(SanPham sanPham)
         {
+            var currentUser = await GetCurrentUserAsync();
+            if (currentUser == null)
+                return Unauthorized("Thiếu hoặc sai token đăng nhập.");
+
+            if (!CoQuyenQuanLySanPham(currentUser))
+                return StatusCode(403, "Chỉ tài khoản admin hoặc quản lý mới được thêm/sửa sản phẩm.");
+
             var sanPhamDaCo = await _context.SanPhams.FirstOrDefaultAsync(sp => sp.Id == sanPham.Id);
             if (sanPhamDaCo != null)
             {
@@ -46,5 +54,22 @@ namespace WebApplication3.Controllers
             await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(GetSanPhams), new { id = sanPham.Id }, sanPham);
         }
+
+        private async Task<NhanVien?> GetCurrentUserAsync()
+        {
+            if (!ApiTokenService.TryGetUserId(Request, out var userId))
+                return null;
+
+            return await _context.NhanViens
+                .AsNoTracking()
+                .FirstOrDefaultAsync(n => !n.DaXoa && n.Id == userId);
+        }
+
+        private static bool CoQuyenQuanLySanPham(NhanVien user) =>
+            user.Id == "ADMIN_001"
+            || string.Equals(user.TaiKhoan, "admin", StringComparison.OrdinalIgnoreCase)
+            || user.VaiTro == "QuanLy"
+            || user.VaiTro == "QL"
+            || string.Equals(user.VaiTro, "Admin", StringComparison.OrdinalIgnoreCase);
     }
 }

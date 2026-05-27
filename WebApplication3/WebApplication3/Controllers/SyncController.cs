@@ -3,8 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using ShopBanHang.Shared;
 using ShopBanHang.Shared.Models;
 using ShopBanHang.Shared.Security;
-using System.Security.Cryptography;
-using System.Text;
+using WebApplication3.Security;
 
 using WebApplication3.Data; // <--- Dòng này sẽ fix lỗi CS0103/CS0246 của bạn
 
@@ -21,7 +20,6 @@ namespace WebApplication3.Controllers
         private const string AdminVaiTro = "QuanLy";
         private const string AdminChiNhanh = "CN_GOC";
         private const string KhachLeId = "KHACH_LE";
-        private const int TokenDays = 7;
 
         public SyncController(ServerDbContext context)
         {
@@ -50,51 +48,22 @@ namespace WebApplication3.Controllers
             return user;
         }
 
-        private string GetTokenSecret() =>
-            Environment.GetEnvironmentVariable("SHOPBANHANG_TOKEN_SECRET")
-            ?? "dev-only-change-this-secret-on-render";
-
-        private string CreateToken(NhanVien user)
+        private async Task<NhanVien?> GetCurrentUserAsync()
         {
-            var expiresUtc = DateTimeOffset.UtcNow.AddDays(TokenDays).ToUnixTimeSeconds();
-            var payload = $"{user.Id}|{expiresUtc}";
-            var signature = SignTokenPayload(payload);
-            return Convert.ToBase64String(Encoding.UTF8.GetBytes($"{payload}|{signature}"));
+            if (!ApiTokenService.TryGetUserId(Request, out var userId))
+                return null;
+
+            return await _context.NhanViens
+                .AsNoTracking()
+                .FirstOrDefaultAsync(n => !n.DaXoa && n.Id == userId);
         }
 
-        private string SignTokenPayload(string payload)
-        {
-            using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(GetTokenSecret()));
-            return Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(payload)));
-        }
-
-        private bool HasValidBearerToken()
-        {
-            var header = Request.Headers.Authorization.ToString();
-            if (string.IsNullOrWhiteSpace(header) || !header.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
-                return false;
-
-            try
-            {
-                var raw = Encoding.UTF8.GetString(Convert.FromBase64String(header["Bearer ".Length..].Trim()));
-                var parts = raw.Split('|');
-                if (parts.Length != 3 || !long.TryParse(parts[1], out var expiresUtc))
-                    return false;
-
-                if (DateTimeOffset.UtcNow.ToUnixTimeSeconds() > expiresUtc)
-                    return false;
-
-                var payload = $"{parts[0]}|{parts[1]}";
-                var expected = Encoding.UTF8.GetBytes(SignTokenPayload(payload));
-                var actual = Encoding.UTF8.GetBytes(parts[2]);
-                return actual.Length == expected.Length
-                    && CryptographicOperations.FixedTimeEquals(actual, expected);
-            }
-            catch (FormatException)
-            {
-                return false;
-            }
-        }
+        private static bool CoQuyenQuanLy(NhanVien user) =>
+            user.Id == AdminId
+            || string.Equals(user.TaiKhoan, AdminTaiKhoan, StringComparison.OrdinalIgnoreCase)
+            || user.VaiTro == AdminVaiTro
+            || user.VaiTro == "QL"
+            || string.Equals(user.VaiTro, "Admin", StringComparison.OrdinalIgnoreCase);
 
         private async Task EnsureAdminTongAsync()
         {
@@ -555,8 +524,11 @@ namespace WebApplication3.Controllers
         [HttpGet("GetNhanViens")]
         public async Task<IActionResult> GetNhanViens()
         {
-            if (!HasValidBearerToken())
+            var currentUser = await GetCurrentUserAsync();
+            if (currentUser == null)
                 return Unauthorized("Thiếu hoặc sai token đăng nhập.");
+            if (!CoQuyenQuanLy(currentUser))
+                return StatusCode(403, "Chỉ tài khoản admin hoặc quản lý mới được xem danh sách nhân viên.");
 
             await EnsureAdminTongAsync();
             var data = await _context.NhanViens
@@ -603,7 +575,7 @@ namespace WebApplication3.Controllers
             {
                 Success = true,
                 NhanVien = ToLoginNhanVien(user),
-                Token = CreateToken(user)
+                Token = ApiTokenService.CreateToken(user.Id)
             });
         }
 
@@ -611,8 +583,11 @@ namespace WebApplication3.Controllers
         [HttpPost("UpsertNhanViens")]
         public async Task<IActionResult> UpsertNhanViens([FromBody] UpsertNhanVienRequest? req)
         {
-            if (!HasValidBearerToken())
+            var currentUser = await GetCurrentUserAsync();
+            if (currentUser == null)
                 return Unauthorized("Thiếu hoặc sai token đăng nhập.");
+            if (!CoQuyenQuanLy(currentUser))
+                return StatusCode(403, "Chỉ tài khoản admin hoặc quản lý mới được thêm/sửa nhân viên.");
 
             if (req?.NhanViens == null || req.NhanViens.Count == 0)
                 return BadRequest("Không có dữ liệu nhân viên.");
@@ -698,8 +673,11 @@ namespace WebApplication3.Controllers
         [HttpPost("DeleteNhanViens")]
         public async Task<IActionResult> DeleteNhanViens([FromBody] XoaNhanVienRequest? req)
         {
-            if (!HasValidBearerToken())
+            var currentUser = await GetCurrentUserAsync();
+            if (currentUser == null)
                 return Unauthorized("Thiếu hoặc sai token đăng nhập.");
+            if (!CoQuyenQuanLy(currentUser))
+                return StatusCode(403, "Chỉ tài khoản admin hoặc quản lý mới được xóa nhân viên.");
 
             if (req?.Ids == null || req.Ids.Count == 0)
                 return BadRequest("Không có Id nhân viên.");

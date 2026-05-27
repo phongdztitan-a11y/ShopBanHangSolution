@@ -87,12 +87,7 @@ namespace ShopBanHang_OfflineFirst
             }
 
             // 3. Phân quyền (NV không được xem quản lý)
-            if (vaiTro == "NV")
-            {
-                btnNhapHang.Visibility = Visibility.Collapsed;
-                btnQuanLyNV.Visibility = Visibility.Collapsed;
-                btnQuanLyChiNhanh.Visibility = Visibility.Collapsed;
-            }
+            ApDungPhanQuyen();
 
             // 4. Khởi tạo DataGrid và Timer
             dgGioHang.ItemsSource = _gioHang;
@@ -122,6 +117,30 @@ namespace ShopBanHang_OfflineFirst
                 Dispatcher.Invoke(CapNhatHienThiApiEndpoint);
             }
             catch { /* giữ URL cũ */ }
+        }
+
+        private bool CoQuyenQuanLyHienTai() => App.CoQuyenQuanLyCapCao(_vaiTro);
+
+        private bool YeuCauQuyenQuanLy(string hanhDong)
+        {
+            if (CoQuyenQuanLyHienTai())
+                return true;
+
+            MessageBox.Show(
+                $"Chỉ tài khoản admin hoặc quản lý mới được {hanhDong}.",
+                "Không đủ quyền",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+            return false;
+        }
+
+        private void ApDungPhanQuyen()
+        {
+            bool coQuyenQuanLy = CoQuyenQuanLyHienTai();
+            btnNhapHang.Visibility = coQuyenQuanLy ? Visibility.Visible : Visibility.Collapsed;
+            btnQuanLyNV.Visibility = coQuyenQuanLy ? Visibility.Visible : Visibility.Collapsed;
+            btnQuanLyChiNhanh.Visibility = coQuyenQuanLy ? Visibility.Visible : Visibility.Collapsed;
+            btnBaoCao.Visibility = coQuyenQuanLy ? Visibility.Visible : Visibility.Collapsed;
         }
 
         private void CapNhatHienThiApiEndpoint()
@@ -1272,6 +1291,8 @@ namespace ShopBanHang_OfflineFirst
 
         private void btnQuanLyNV_Click(object sender, RoutedEventArgs e)
         {
+            if (!YeuCauQuyenQuanLy("quản lý nhân viên")) return;
+
             QuanLyNhanVienWindow qlNV = new QuanLyNhanVienWindow(_chiNhanh);
             qlNV.ShowDialog();
         }
@@ -1298,6 +1319,8 @@ namespace ShopBanHang_OfflineFirst
 
         private void btnNhapHang_Click(object sender, RoutedEventArgs e)
         {
+            if (!YeuCauQuyenQuanLy("thêm/sửa sản phẩm")) return;
+
             NhapHangWindow nhapHangWin = new NhapHangWindow();
             nhapHangWin.ShowDialog();
             LoadDanhSachSanPham();
@@ -1443,6 +1466,8 @@ namespace ShopBanHang_OfflineFirst
 
         private void btnBaoCao_Click(object sender, RoutedEventArgs e)
         {
+            if (!YeuCauQuyenQuanLy("xem báo cáo")) return;
+
             BaoCaoDoanhThuWindow baoCaoWin = new BaoCaoDoanhThuWindow();
             baoCaoWin.Owner = this;
 
@@ -1467,6 +1492,8 @@ namespace ShopBanHang_OfflineFirst
         // Thêm vào MainWindow.xaml.cs
         private void btnQuanLyChiNhanh_Click(object sender, RoutedEventArgs e)
         {
+            if (!YeuCauQuyenQuanLy("quản lý chi nhánh")) return;
+
             QuanLyChiNhanhWindow qlCN = new QuanLyChiNhanhWindow();
             qlCN.Owner = this;
             qlCN.ShowDialog();

@@ -20,8 +20,29 @@ namespace ShopBanHang_OfflineFirst
         public NhapHangWindow()
         {
             InitializeComponent();
+            if (!KiemTraQuyenQuanLy())
+            {
+                Close();
+                return;
+            }
+
             CapNhatCheDoForm();
             LoadData();
+        }
+
+        private static bool CoQuyenQuanLySanPham() => App.CoQuyenQuanLyCapCao(App.VaiTro);
+
+        private bool KiemTraQuyenQuanLy()
+        {
+            if (CoQuyenQuanLySanPham())
+                return true;
+
+            MessageBox.Show(
+                "Chỉ tài khoản admin hoặc quản lý mới được thêm/sửa sản phẩm.",
+                "Không đủ quyền",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+            return false;
         }
 
         public class SanPhamKhoHienThi
@@ -152,6 +173,7 @@ namespace ShopBanHang_OfflineFirst
 
         private void btnThemMo_Click(object sender, RoutedEventArgs e)
         {
+            if (!KiemTraQuyenQuanLy()) return;
             if (DangSuaSanPham) return;
             if (!DocForm(out var ten, out var maGoc, out var size, out var mau, out var giaBan, out var tonKho)) return;
 
@@ -191,6 +213,7 @@ namespace ShopBanHang_OfflineFirst
 
         private async void btnSuaSanPham_Click(object sender, RoutedEventArgs e)
         {
+            if (!KiemTraQuyenQuanLy()) return;
             if (!DangSuaSanPham || string.IsNullOrEmpty(_idSanPhamDangSua)) return;
             if (!DocForm(out var ten, out var maGoc, out var size, out var mau, out var giaBan, out var tonKho)) return;
 
@@ -308,6 +331,7 @@ namespace ShopBanHang_OfflineFirst
 
         private void btnXoa_Click(object sender, RoutedEventArgs e)
         {
+            if (!KiemTraQuyenQuanLy()) return;
             if (dgSanPhamKho.SelectedItem is not SanPhamKhoHienThi spChon) return;
 
             if (MessageBox.Show("Xóa sản phẩm này?", "Xác nhận", MessageBoxButton.YesNo) != MessageBoxResult.Yes)
