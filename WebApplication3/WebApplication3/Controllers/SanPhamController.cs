@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebApplication3.Data;
 using ShopBanHang.Shared;
+using ShopBanHang.Shared.Utilities;
 using WebApplication3.Security;
 
 namespace WebApplication3.Controllers
@@ -39,6 +40,8 @@ namespace WebApplication3.Controllers
             if (!CoQuyenQuanLySanPham(currentUser))
                 return StatusCode(403, "Chỉ tài khoản admin hoặc quản lý mới được thêm/sửa sản phẩm.");
 
+            sanPham.NgayCapNhat = DateTimeUtc.Normalize(sanPham.NgayCapNhat);
+
             var sanPhamDaCo = await _context.SanPhams.FirstOrDefaultAsync(sp => sp.Id == sanPham.Id);
             if (sanPhamDaCo != null)
             {
@@ -47,7 +50,7 @@ namespace WebApplication3.Controllers
                 sanPhamDaCo.KichCo = sanPham.KichCo;
                 sanPhamDaCo.MauSac = sanPham.MauSac;
                 sanPhamDaCo.GiaBan = sanPham.GiaBan;
-                sanPhamDaCo.NgayCapNhat = DateTime.UtcNow;
+                sanPhamDaCo.NgayCapNhat = sanPham.NgayCapNhat;
                 sanPhamDaCo.DaXoa = sanPham.DaXoa;
                 sanPhamDaCo.MaChiNhanh = sanPham.MaChiNhanh;
                 await _context.SaveChangesAsync();

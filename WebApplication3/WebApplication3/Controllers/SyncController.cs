@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using ShopBanHang.Shared;
 using ShopBanHang.Shared.Models;
 using ShopBanHang.Shared.Security;
+using ShopBanHang.Shared.Utilities;
 using WebApplication3.Security;
 
 using WebApplication3.Data; // <--- Dòng này sẽ fix lỗi CS0103/CS0246 của bạn
@@ -64,6 +65,23 @@ namespace WebApplication3.Controllers
             || user.VaiTro == AdminVaiTro
             || user.VaiTro == "QL"
             || string.Equals(user.VaiTro, "Admin", StringComparison.OrdinalIgnoreCase);
+
+        private static void NormalizeBaseDates(BaseModel model)
+        {
+            model.NgayCapNhat = DateTimeUtc.Normalize(model.NgayCapNhat);
+        }
+
+        private static void NormalizeNhanVienDates(NhanVien model)
+        {
+            NormalizeBaseDates(model);
+            model.LanDangNhapOnlineGanNhat = DateTimeUtc.Normalize(model.LanDangNhapOnlineGanNhat);
+        }
+
+        private static void NormalizeHoaDonDates(HoaDon model)
+        {
+            NormalizeBaseDates(model);
+            model.NgayLap = DateTimeUtc.Normalize(model.NgayLap);
+        }
 
         private async Task EnsureAdminTongAsync()
         {
@@ -137,6 +155,7 @@ namespace WebApplication3.Controllers
                     // Vì POS offline-first có thể gửi lên trước khi đồng bộ danh mục, ta tự tạo bản ghi tối thiểu để không 500.
                     var maChiNhanh = string.IsNullOrWhiteSpace(goi.HoaDon.MaChiNhanh) ? "CN_GOC" : goi.HoaDon.MaChiNhanh.Trim();
                     goi.HoaDon.MaChiNhanh = maChiNhanh;
+                    NormalizeHoaDonDates(goi.HoaDon);
 
                     // HoaDon.MaChiNhanh currently references ChiNhanh.Id in the existing migration.
                     // Always ensure a canonical branch row whose Id equals the invoice branch code.
@@ -259,6 +278,7 @@ namespace WebApplication3.Controllers
                             ct.HoaDon = null;
                             ct.SanPham = null;
                             ct.TrangThaiDongBo = 1;
+                            NormalizeBaseDates(ct);
                             // Nếu ChiTietHoaDon cũng có ChiNhanh, hãy gán null nốt:
                             // ct.ChiNhanh = null; 
                         }
@@ -383,6 +403,8 @@ namespace WebApplication3.Controllers
                     if (item == null || string.IsNullOrWhiteSpace(item.MaChiNhanh))
                         continue;
 
+                    NormalizeBaseDates(item);
+
                     var current = await _context.ChiNhanhs.FirstOrDefaultAsync(c =>
                         c.Id == item.Id || c.MaChiNhanh == item.MaChiNhanh);
 
@@ -466,6 +488,8 @@ namespace WebApplication3.Controllers
                     if (item == null || string.IsNullOrWhiteSpace(item.Id))
                         continue;
 
+                    NormalizeBaseDates(item);
+
                     if (string.IsNullOrWhiteSpace(item.DiaChi))
                         item.DiaChi = "";
 
@@ -530,6 +554,8 @@ namespace WebApplication3.Controllers
                 {
                     if (item == null || string.IsNullOrWhiteSpace(item.IdSanPham) || string.IsNullOrWhiteSpace(item.MaChiNhanh))
                         continue;
+
+                    NormalizeBaseDates(item);
 
                     var current = await _context.TonKhoChiNhanhs.FirstOrDefaultAsync(t =>
                         t.Id == item.Id || (t.IdSanPham == item.IdSanPham && t.MaChiNhanh == item.MaChiNhanh));
@@ -647,6 +673,8 @@ namespace WebApplication3.Controllers
                 {
                     if (item == null || string.IsNullOrWhiteSpace(item.Id))
                         continue;
+
+                    NormalizeNhanVienDates(item);
 
                     bool laAdminTong = item.Id == AdminId
                         || string.Equals(item.TaiKhoan, AdminTaiKhoan, StringComparison.OrdinalIgnoreCase);

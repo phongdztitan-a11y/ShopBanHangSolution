@@ -1,5 +1,6 @@
 ﻿using ShopBanHang.Shared;
 using ShopBanHang.Shared.Models;
+using ShopBanHang.Shared.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -78,10 +79,46 @@ namespace ShopBanHang_OfflineFirst.Services
                 _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", "Bearer " + _authToken);
         }
 
+        private static void NormalizeBaseDates(BaseModel model)
+        {
+            model.NgayCapNhat = DateTimeUtc.Normalize(model.NgayCapNhat);
+        }
+
+        private static void NormalizeNhanVienDates(NhanVien model)
+        {
+            NormalizeBaseDates(model);
+            model.LanDangNhapOnlineGanNhat = DateTimeUtc.Normalize(model.LanDangNhapOnlineGanNhat);
+        }
+
+        private static void NormalizeHoaDonDates(HoaDon model)
+        {
+            NormalizeBaseDates(model);
+            model.NgayLap = DateTimeUtc.Normalize(model.NgayLap);
+        }
+
+        private static void NormalizeSyncHoaDonPayload(object payload)
+        {
+            if (payload is not DongBoWrapper wrapper || wrapper.dsGoi == null)
+                return;
+
+            foreach (var goi in wrapper.dsGoi)
+            {
+                if (goi?.HoaDon != null)
+                    NormalizeHoaDonDates(goi.HoaDon);
+
+                if (goi?.ChiTiets == null)
+                    continue;
+
+                foreach (var ct in goi.ChiTiets)
+                    NormalizeBaseDates(ct);
+            }
+        }
+
         public async Task<(bool Ok, string? ErrorMessage)> PostSyncHoaDonsAsync(object dongBoWrapper)
         {
             try
             {
+                NormalizeSyncHoaDonPayload(dongBoWrapper);
                 var json = JsonSerializer.Serialize(dongBoWrapper, SyncHoaDonJsonOptions);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
                 var response = await _httpClient.PostAsync($"{_baseUrl}Sync/PostHoaDon", content);
@@ -121,6 +158,7 @@ namespace ShopBanHang_OfflineFirst.Services
         {
             try
             {
+                NormalizeBaseDates(sp);
                 var response = await _httpClient.PostAsJsonAsync($"{_baseUrl}SanPham", sp);
                 if (response.IsSuccessStatusCode)
                     return (true, null);
@@ -194,6 +232,9 @@ namespace ShopBanHang_OfflineFirst.Services
 
             try
             {
+                foreach (var nv in nhanViens)
+                    NormalizeNhanVienDates(nv);
+
                 var response = await _httpClient.PostAsJsonAsync($"{_baseUrl}Sync/UpsertNhanViens", new { nhanViens });
                 if (response.IsSuccessStatusCode)
                     return (true, null);
@@ -226,6 +267,9 @@ namespace ShopBanHang_OfflineFirst.Services
 
             try
             {
+                foreach (var cn in chiNhanhs)
+                    NormalizeBaseDates(cn);
+
                 var response = await _httpClient.PostAsJsonAsync($"{_baseUrl}Sync/UpsertChiNhanhs", new { chiNhanhs });
                 if (response.IsSuccessStatusCode) return (true, null);
                 string body = await response.Content.ReadAsStringAsync();
@@ -256,6 +300,9 @@ namespace ShopBanHang_OfflineFirst.Services
 
             try
             {
+                foreach (var tk in tonKhos)
+                    NormalizeBaseDates(tk);
+
                 var response = await _httpClient.PostAsJsonAsync($"{_baseUrl}Sync/UpsertTonKhoChiNhanhs", new { tonKhos });
                 if (response.IsSuccessStatusCode) return (true, null);
                 string body = await response.Content.ReadAsStringAsync();
@@ -286,6 +333,9 @@ namespace ShopBanHang_OfflineFirst.Services
 
             try
             {
+                foreach (var kh in khachHangs)
+                    NormalizeBaseDates(kh);
+
                 var response = await _httpClient.PostAsJsonAsync($"{_baseUrl}Sync/UpsertKhachHangs", new { khachHangs });
                 if (response.IsSuccessStatusCode) return (true, null);
                 string body = await response.Content.ReadAsStringAsync();
