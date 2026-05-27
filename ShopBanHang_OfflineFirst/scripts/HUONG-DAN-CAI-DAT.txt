@@ -1,30 +1,29 @@
-TACH CAU HINH MAY A (DEV) VA MAY B (CAI DAT)
-=============================================
+HUONG DAN CAI DAT CLIENT SHOPBANHANG
+====================================
 
-MAY A - DUNG APP HANG NGAY (Visual Studio / F5)
------------------------------------------------
-- appsettings.json = http://localhost:5191/api/
-- KHONG tao file server.url trong thu muc project (neu co thi xoa):
-    .\scripts\clean-dev-server-url.ps1
-- Chi can: SQL + WebApplication3 (port 5191). KHONG can ngrok de ban hang tren A.
+API dang dung:
+https://shopbanhang-api.onrender.com/api/
 
-MAY A - CHUAN BI GOI CAI CHO MAY KHAC
---------------------------------------
-1. Bat ngrok:  ngrok http 5191
-2. Luu URL cho installer:
-     .\scripts\update-ngrok-url.ps1 -ForInstaller
-   (ghi vao installer\remote-server.url)
-3. Build:
-     .\build-setup.ps1 -Force
-4. Copy thu muc dist\ShopBanHang-Installer sang may B.
+BUILD GOI CAI
+-------------
+1. Kiem tra file installer\remote-server.url co noi dung:
+   https://shopbanhang-api.onrender.com/api/
 
-MAY B
------
-- Chay setup.exe, chon URL ngrok (hoac discovery).
-- Goi cai da co san server.url (ngrok), khong dung localhost.
+2. Build bo cai:
+   .\build-setup.ps1 -Force
 
-KHI NGROK DOI URL
------------------
-- May A dev: khong lam gi (van localhost).
-- Goi cai may B: update-ngrok-url.ps1 -ForInstaller -> build-setup.ps1 -Force
-  HOAC tren may B: Cau hinh server trong app.
+3. Copy thu muc sau sang may can cai:
+   dist\ShopBanHang-Installer
+
+MAY CLIENT
+----------
+1. Chay setup.exe.
+2. Setup se cai app va tao server.url tro ve Render API.
+3. Dang nhap admin/quan ly de dong bo danh muc, san pham, nhan vien.
+4. Tai khoan NV chi ban hang va dong bo hoa don/khach hang/ton kho; khong co quyen them sua san pham, chi nhanh, nhan vien.
+
+NEU DOI API URL
+---------------
+- Sua file installer\remote-server.url.
+- Chay lai .\build-setup.ps1 -Force.
+- Cai lai setup.exe tren may client, hoac mo app -> Cau hinh server de doi URL.

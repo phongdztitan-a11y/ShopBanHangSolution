@@ -1159,6 +1159,9 @@ namespace ShopBanHang_OfflineFirst
         {
             try
             {
+                if (!CoQuyenQuanLyHienTai())
+                    return (true, null);
+
                 using var db = new AppDbContext();
                 var ds = db.NhanViens.Where(n => n.TrangThaiDongBo == 0).ToList();
                 if (ds.Count == 0) return (true, null);
@@ -1185,6 +1188,9 @@ namespace ShopBanHang_OfflineFirst
         {
             try
             {
+                if (!CoQuyenQuanLyHienTai())
+                    return (true, null);
+
                 using var db = new AppDbContext();
                 var ds = db.ChiNhanhs.Where(c => c.TrangThaiDongBo == 0).ToList();
                 if (ds.Count == 0) return (true, null);
@@ -1261,6 +1267,9 @@ namespace ShopBanHang_OfflineFirst
         {
             try
             {
+                if (!CoQuyenQuanLyHienTai())
+                    return (true, null);
+
                 using (var db = new AppDbContext())
                 {
                     var dsSanPhamChoDongBo = db.SanPhams

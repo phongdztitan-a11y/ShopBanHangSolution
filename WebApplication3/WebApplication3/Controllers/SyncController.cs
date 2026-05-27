@@ -108,6 +108,10 @@ namespace WebApplication3.Controllers
         [HttpPost("PostHoaDon")]
         public async Task<IActionResult> PostHoaDon([FromBody] DongBoWrapper wrapper)
         {
+            var currentUser = await GetCurrentUserAsync();
+            if (currentUser == null)
+                return Unauthorized("Thiếu hoặc sai token đăng nhập.");
+
             if (wrapper == null) return BadRequest("Payload rỗng.");
             // Lấy danh sách ra từ wrapper
             var dsGoi = wrapper.dsGoi;
@@ -341,6 +345,12 @@ namespace WebApplication3.Controllers
         [HttpPost("UpsertChiNhanhs")]
         public async Task<IActionResult> UpsertChiNhanhs([FromBody] UpsertChiNhanhRequest? req)
         {
+            var currentUser = await GetCurrentUserAsync();
+            if (currentUser == null)
+                return Unauthorized("Thiếu hoặc sai token đăng nhập.");
+            if (!CoQuyenQuanLy(currentUser))
+                return StatusCode(403, "Chỉ tài khoản admin hoặc quản lý mới được thêm/sửa chi nhánh.");
+
             if (req?.ChiNhanhs == null || req.ChiNhanhs.Count == 0)
                 return BadRequest("Không có dữ liệu chi nhánh.");
 
@@ -412,6 +422,10 @@ namespace WebApplication3.Controllers
         [HttpPost("UpsertKhachHangs")]
         public async Task<IActionResult> UpsertKhachHangs([FromBody] UpsertKhachHangRequest? req)
         {
+            var currentUser = await GetCurrentUserAsync();
+            if (currentUser == null)
+                return Unauthorized("Thiếu hoặc sai token đăng nhập.");
+
             if (req?.KhachHangs == null || req.KhachHangs.Count == 0)
                 return BadRequest("Không có dữ liệu khách hàng.");
 
@@ -473,6 +487,10 @@ namespace WebApplication3.Controllers
         [HttpPost("UpsertTonKhoChiNhanhs")]
         public async Task<IActionResult> UpsertTonKhoChiNhanhs([FromBody] UpsertTonKhoRequest? req)
         {
+            var currentUser = await GetCurrentUserAsync();
+            if (currentUser == null)
+                return Unauthorized("Thiếu hoặc sai token đăng nhập.");
+
             if (req?.TonKhos == null || req.TonKhos.Count == 0)
                 return BadRequest("Không có dữ liệu tồn kho.");
 
