@@ -138,18 +138,27 @@ namespace WebApplication3.Controllers
                     var maChiNhanh = string.IsNullOrWhiteSpace(goi.HoaDon.MaChiNhanh) ? "CN_GOC" : goi.HoaDon.MaChiNhanh.Trim();
                     goi.HoaDon.MaChiNhanh = maChiNhanh;
 
-                    // Avoid tracking duplicate ChiNhanh instances: check local tracked entities first
-                    var chiNhanh = _context.ChiNhanhs.Local.FirstOrDefault(c => c.Id == maChiNhanh || c.MaChiNhanh == maChiNhanh);
+                    // HoaDon.MaChiNhanh currently references ChiNhanh.Id in the existing migration.
+                    // Always ensure a canonical branch row whose Id equals the invoice branch code.
+                    var chiNhanh = _context.ChiNhanhs.Local.FirstOrDefault(c => c.Id == maChiNhanh);
                     if (chiNhanh == null)
                     {
-                        chiNhanh = await _context.ChiNhanhs.FirstOrDefaultAsync(c => c.Id == maChiNhanh || c.MaChiNhanh == maChiNhanh);
+                        chiNhanh = await _context.ChiNhanhs.FirstOrDefaultAsync(c => c.Id == maChiNhanh);
                         if (chiNhanh == null)
                         {
+                            var chiNhanhTheoMa = await _context.ChiNhanhs
+                                .AsNoTracking()
+                                .Where(c => c.MaChiNhanh == maChiNhanh)
+                                .OrderByDescending(c => c.NgayCapNhat)
+                                .FirstOrDefaultAsync();
+
                             var newChi = new ChiNhanh
                             {
                                 Id = maChiNhanh,
                                 MaChiNhanh = maChiNhanh,
-                                TenChiNhanh = maChiNhanh,
+                                TenChiNhanh = string.IsNullOrWhiteSpace(chiNhanhTheoMa?.TenChiNhanh)
+                                    ? maChiNhanh
+                                    : chiNhanhTheoMa.TenChiNhanh,
                                 DaXoa = false,
                                 TrangThaiDongBo = 1,
                                 NgayCapNhat = DateTime.UtcNow

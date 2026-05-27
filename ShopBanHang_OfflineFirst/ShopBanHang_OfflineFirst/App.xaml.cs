@@ -72,6 +72,19 @@ namespace ShopBanHang_OfflineFirst
             foreach (var cn in db.ChiNhanhs.Where(c => c.MaChiNhanh == MaChiNhanhTong || c.Id == MaChiNhanhTong))
                 cn.DaXoa = false;
 
+            if (!db.ChiNhanhs.Any(c => c.Id == MaChiNhanhTong))
+            {
+                db.ChiNhanhs.Add(new ShopBanHang.Shared.ChiNhanh
+                {
+                    Id = MaChiNhanhTong,
+                    MaChiNhanh = MaChiNhanhTong,
+                    TenChiNhanh = "Chi Nhánh Tổng",
+                    DaXoa = false,
+                    TrangThaiDongBo = 1,
+                    NgayCapNhat = DateTime.UtcNow
+                });
+            }
+
             var admin = db.NhanViens.FirstOrDefault(n => n.Id == IdNhanVienAdminTong);
             if (admin == null)
                 return;
