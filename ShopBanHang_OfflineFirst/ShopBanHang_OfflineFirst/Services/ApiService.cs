@@ -20,6 +20,8 @@ namespace ShopBanHang_OfflineFirst.Services
         /// <summary>URL API đang dùng (đọc từ server.url hoặc appsettings.json cạnh .exe).</summary>
         public string BaseUrl => _baseUrl;
 
+        public static void ClearAuthToken() => _authToken = null;
+
         private static readonly JsonSerializerOptions JsonInsensitive = new()
         {
             PropertyNameCaseInsensitive = true

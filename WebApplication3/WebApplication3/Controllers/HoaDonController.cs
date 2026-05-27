@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using WebApplication3.Data;
 using ShopBanHang.Shared;
+using WebApplication3.Security;
 
 namespace WebApplication3.Controllers
 {
@@ -20,6 +21,9 @@ namespace WebApplication3.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<HoaDon>>> GetHoaDons()
         {
+            if (!ApiTokenService.TryGetUserId(Request, out _))
+                return Unauthorized("Thiếu hoặc sai token đăng nhập.");
+
             // .Include để lấy kèm cả chi tiết các món hàng trong hóa đơn đó
             return await _context.HoaDons.Include(h => h.ChiTiets).ToListAsync();
         }
@@ -28,6 +32,9 @@ namespace WebApplication3.Controllers
         [HttpPost]
         public async Task<IActionResult> PostHoaDon(HoaDon hoaDon)
         {
+            if (!ApiTokenService.TryGetUserId(Request, out _))
+                return Unauthorized("Thiếu hoặc sai token đăng nhập.");
+
             try 
             {
                 _context.HoaDons.Add(hoaDon);

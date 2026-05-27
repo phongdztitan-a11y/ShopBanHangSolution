@@ -282,6 +282,10 @@ namespace WebApplication3.Controllers
         [HttpGet("GetHoaDonsForDongBo")]
         public async Task<IActionResult> GetHoaDonsForDongBo([FromQuery] string? maChiNhanh)
         {
+            var currentUser = await GetCurrentUserAsync();
+            if (currentUser == null)
+                return Unauthorized("Thiếu hoặc sai token đăng nhập.");
+
             var q = _context.HoaDons.AsNoTracking().AsQueryable();
             if (!string.IsNullOrWhiteSpace(maChiNhanh))
                 q = q.Where(h => h.MaChiNhanh == maChiNhanh);
@@ -337,6 +341,10 @@ namespace WebApplication3.Controllers
         [HttpGet("GetSanPhams")]
         public async Task<IActionResult> GetSanPhams()
         {
+            var currentUser = await GetCurrentUserAsync();
+            if (currentUser == null)
+                return Unauthorized("Thiếu hoặc sai token đăng nhập.");
+
             var data = await _context.SanPhams.AsNoTracking().ToListAsync();
             return Ok(data);
         }
@@ -344,6 +352,10 @@ namespace WebApplication3.Controllers
         [HttpGet("GetChiNhanhs")]
         public async Task<IActionResult> GetChiNhanhs()
         {
+            var currentUser = await GetCurrentUserAsync();
+            if (currentUser == null)
+                return Unauthorized("Thiếu hoặc sai token đăng nhập.");
+
             var data = await _context.ChiNhanhs
                 .AsNoTracking()
                 .OrderByDescending(c => c.NgayCapNhat)
@@ -410,6 +422,10 @@ namespace WebApplication3.Controllers
         [HttpGet("GetTonKhoChiNhanhs")]
         public async Task<IActionResult> GetTonKhoChiNhanhs()
         {
+            var currentUser = await GetCurrentUserAsync();
+            if (currentUser == null)
+                return Unauthorized("Thiếu hoặc sai token đăng nhập.");
+
             var data = await _context.TonKhoChiNhanhs
                 .AsNoTracking()
                 .OrderByDescending(t => t.NgayCapNhat)
@@ -421,6 +437,10 @@ namespace WebApplication3.Controllers
         [HttpGet("GetKhachHangs")]
         public async Task<IActionResult> GetKhachHangs()
         {
+            var currentUser = await GetCurrentUserAsync();
+            if (currentUser == null)
+                return Unauthorized("Thiếu hoặc sai token đăng nhập.");
+
             var data = await _context.KhachHangs
                 .AsNoTracking()
                 .OrderByDescending(k => k.NgayCapNhat)

@@ -21,6 +21,10 @@ namespace WebApplication3.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<SanPham>>> GetSanPhams()
         {
+            var currentUser = await GetCurrentUserAsync();
+            if (currentUser == null)
+                return Unauthorized("Thiếu hoặc sai token đăng nhập.");
+
             return await _context.SanPhams.ToListAsync();
         }
 

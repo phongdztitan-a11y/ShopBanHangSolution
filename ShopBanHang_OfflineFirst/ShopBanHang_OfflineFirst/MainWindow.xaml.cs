@@ -1317,6 +1317,7 @@ namespace ShopBanHang_OfflineFirst
             var ketQua = MessageBox.Show("Bạn có chắc chắn muốn đăng xuất?", "Xác nhận", MessageBoxButton.YesNo, MessageBoxImage.Question);
             if (ketQua == MessageBoxResult.Yes)
             {
+                ApiService.ClearAuthToken();
                 App.TaiKhoanHienTai = string.Empty;
                 App.VaiTro = string.Empty;
                 App.ChiNhanhHienTai = string.Empty;
