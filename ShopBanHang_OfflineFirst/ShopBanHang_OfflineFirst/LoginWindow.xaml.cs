@@ -12,8 +12,6 @@ namespace ShopBanHang_OfflineFirst
 {
     public partial class LoginWindow : Window
     {
-        private const int SoNgayChoPhepDangNhapOffline = 7;
-
         public LoginWindow()
         {
             InitializeComponent();
@@ -78,9 +76,6 @@ namespace ShopBanHang_OfflineFirst
             }
             await db.SaveChangesAsync();
         }
-
-        private static bool LaTaiKhoanQuanLyKhongPhaiAdminTong(NhanVien user) =>
-            !App.LaTaiKhoanAdminTong(user.Id, user.TaiKhoan) && App.CoQuyenQuanLyCapCao(user.VaiTro);
 
         private void DangNhapThanhCong(NhanVien user, string maChiNhanhSelected)
         {
@@ -240,18 +235,6 @@ namespace ShopBanHang_OfflineFirst
                     {
                         MessageBox.Show("Tài khoản admin tổng yêu cầu online để đăng nhập.", "Yêu cầu kết nối");
                         return;
-                    }
-
-                    if (LaTaiKhoanQuanLyKhongPhaiAdminTong(user))
-                    {
-                        var moc = user.LanDangNhapOnlineGanNhat;
-                        if (!moc.HasValue || moc.Value < DateTime.UtcNow.AddDays(-SoNgayChoPhepDangNhapOffline))
-                        {
-                            MessageBox.Show(
-                                $"Tài khoản quản lý/NV cần đăng nhập online ít nhất 1 lần trong {SoNgayChoPhepDangNhapOffline} ngày gần đây để được dùng offline.",
-                                "Hết hạn offline");
-                            return;
-                        }
                     }
 
                     DangNhapThanhCong(user, maChiNhanhSelected);
